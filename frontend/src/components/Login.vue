@@ -1,5 +1,10 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import petImage from '@/assets/images/dog-login.webp'
+
+const router = useRouter()
+
+const goRegister = () => router.push('/register')
 </script>
 
 <template>
@@ -15,10 +20,13 @@ import petImage from '@/assets/images/dog-login.webp'
 			</div>
 
 			<div class="form-panel">
-				
+				<div class="tabs">
+					<button class="tab active" type="button">Login</button>
+					<button class="tab" type="button" @click="goRegister">Register</button>
+				</div>
 
 				<div class="form-content">
-					<h2>Welcome Back!</h2>
+					<h2>Welcome Back</h2>
 
 					<label class="field">
 						<span>Email</span>
@@ -35,7 +43,7 @@ import petImage from '@/assets/images/dog-login.webp'
 					<button class="primary" type="button">Login</button>
 
 					<div class="signup-prompt">
-						<p>Don't have an account? <button class="signup-link" type="button">Create account</button></p>
+						<p>Don't have an account? <button class="signup-link" type="button" @click="goRegister">Create account</button></p>
 					</div>
 				</div>
 			</div>
