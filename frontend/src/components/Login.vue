@@ -33,13 +33,7 @@ import petImage from '@/assets/images/dog-login.webp'
 						<input type="password" placeholder="••••••••" />
 					</label>
 
-					<div class="options">
-						<label class="remember">
-							<input type="checkbox" />
-							<span>Remember me</span>
-						</label>
-						<button class="link" type="button">Forgot password?</button>
-					</div>
+					
 
 					<button class="primary" type="button">Login</button>
 				</div>
