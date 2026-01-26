@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import petImage from '@/assets/images/dog-login.webp'
 
@@ -10,8 +10,28 @@ const form = ref({
   password: ''
 })
 
+const formKey = ref(0)
+const readonly = ref(true)
 const loading = ref(false)
 const errorMessage = ref('')
+
+onMounted(() => {
+  form.value = {
+    email: '',
+    password: ''
+  }
+  errorMessage.value = ''
+  formKey.value++
+  
+  setTimeout(() => {
+    readonly.value = false
+    form.value = {
+      email: '',
+      password: ''
+    }
+    formKey.value++
+  }, 100)
+})
 
 const goRegister = () => router.push('/register')
 
@@ -78,12 +98,12 @@ const handleLogin = async () => {
 
 					<label class="field">
 						<span>Email</span>
-						<input v-model="form.email" type="email" placeholder="you@example.com" />
+						<input :key="'email-' + formKey" v-model="form.email" type="email" placeholder="" autocomplete="off" :readonly="readonly" />
 					</label>
 
 					<label class="field">
 						<span>Password</span>
-						<input v-model="form.password" type="password" placeholder="••••••••" />
+						<input :key="'password-' + formKey" v-model="form.password" type="password" placeholder="" autocomplete="new-password" :readonly="readonly" />
 					</label>
 
 					<button class="primary" type="button" @click="handleLogin" :disabled="loading">
