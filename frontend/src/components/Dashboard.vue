@@ -141,6 +141,9 @@ const clearFilters = () => {
         </nav>
 
         <div class="user-section">
+          <span class="user-badge" :class="'badge-' + (user?.role || 'user')">
+            {{ user?.role?.toUpperCase() || 'USER' }}
+          </span>
           <span class="user-name" v-if="user">{{ user.name }}</span>
           <button class="logout-btn" @click="handleLogout">
             <span class="logout-icon">🚪</span>
@@ -150,90 +153,215 @@ const clearFilters = () => {
       </div>
     </header>
 
-    <section class="hero">
-      <div class="hero-content">
-        <h1 class="hero-title">Find Your Perfect Companion</h1>
-        
-     
-      </div>
-    </section>
-
-    <div class="main-container">
-      <aside class="filters-sidebar">
-        <div class="filters-header">
-          <h3>Filters</h3>
-          <button class="clear-all" @click="clearFilters">Clear All</button>
+    <!-- Admin Dashboard -->
+    <div v-if="user?.role === 'admin'" class="admin-dashboard">
+      <section class="hero hero-admin">
+        <div class="hero-content">
+          <h1 class="hero-title">Admin Dashboard</h1>
+          <p class="hero-subtitle">Manage users, shelters, and oversee all adoptions</p>
         </div>
+      </section>
 
-        <div class="filter-section">
-          <h4>Pet Type</h4>
-          <label class="checkbox-label">
-            <input type="checkbox" value="dogs" v-model="filters.petType" />
-            <span>Dogs</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" value="cats" v-model="filters.petType" />
-            <span>Cats</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" value="rabbits" v-model="filters.petType" />
-            <span>Rabbits</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" value="birds" v-model="filters.petType" />
-            <span>Birds</span>
-          </label>
-        </div>
-
-        <div class="filter-section">
-          <h4>Age</h4>
-          <label class="radio-label">
-            <input type="radio" name="age" value="puppy" v-model="filters.age" />
-            <span>Puppy/Kitten</span>
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="age" value="young" v-model="filters.age" />
-            <span>Young</span>
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="age" value="adult" v-model="filters.age" />
-            <span>Adult</span>
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="age" value="senior" v-model="filters.age" />
-            <span>Senior</span>
-          </label>
-        </div>
-      </aside>
-
-      <main class="pets-content">
-        <div class="pets-header">
-          <h2>Showing 247 pets</h2>
-        </div>
-
-        <div class="pets-grid">
-          <div v-for="pet in pets" :key="pet.id" class="pet-card">
-            <div class="pet-image-wrapper">
-              <img :src="pet.image" :alt="pet.name" class="pet-image" />
+      <div class="admin-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <h3>Total Users</h3>
+              <p class="stat-number">1,234</p>
             </div>
-            
-            <div class="pet-info">
-              <h3 class="pet-name">{{ pet.name }}</h3>
-              <p class="pet-details">
-                <span class="detail-item">{{ pet.breed }}</span>
-                <span class="separator">•</span>
-                <span class="detail-item">{{ pet.age }}</span>
-              </p>
-              <p class="pet-details">
-                <span class="detail-item">📍 {{ pet.location }}</span>
-                <span class="separator">•</span>
-                <span class="detail-item">{{ pet.distance }}</span>
-              </p>
-              <button class="adopt-btn">Adopt Me</button>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-info">
+              <h3>Shelters</h3>
+              <p class="stat-number">45</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🐾</div>
+            <div class="stat-info">
+              <h3>Total Pets</h3>
+              <p class="stat-number">247</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-info">
+              <h3>Adoptions</h3>
+              <p class="stat-number">892</p>
             </div>
           </div>
         </div>
-      </main>
+
+        <div class="admin-sections">
+          <div class="admin-section">
+            <h2>Recent Users</h2>
+            <div class="admin-table">
+              <p class="placeholder-text">User management coming soon...</p>
+            </div>
+          </div>
+          <div class="admin-section">
+            <h2>Recent Shelters</h2>
+            <div class="admin-table">
+              <p class="placeholder-text">Shelter management coming soon...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shelter Dashboard -->
+    <div v-else-if="user?.role === 'shelter'" class="shelter-dashboard">
+      <section class="hero hero-shelter">
+        <div class="hero-content">
+          <h1 class="hero-title">Shelter Dashboard</h1>
+          <p class="hero-subtitle">Manage your pets and adoption requests</p>
+        </div>
+      </section>
+
+      <div class="shelter-content">
+        <div class="action-bar">
+          <button class="primary-btn">+ Add New Pet</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🐾</div>
+            <div class="stat-info">
+              <h3>Your Pets</h3>
+              <p class="stat-number">12</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info">
+              <h3>Pending Requests</h3>
+              <p class="stat-number">8</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <h3>Approved</h3>
+              <p class="stat-number">24</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="shelter-sections">
+          <div class="shelter-section">
+            <h2>Your Pets</h2>
+            <div class="pets-grid-small">
+              <div v-for="pet in pets.slice(0, 3)" :key="pet.id" class="pet-card-small">
+                <img :src="pet.image" :alt="pet.name" />
+                <div class="pet-card-info">
+                  <h4>{{ pet.name }}</h4>
+                  <p>{{ pet.breed }}</p>
+                  <div class="pet-actions">
+                    <button class="btn-edit">Edit</button>
+                    <button class="btn-delete">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="shelter-section">
+            <h2>Adoption Requests</h2>
+            <div class="requests-list">
+              <p class="placeholder-text">No pending requests</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Dashboard (Default) -->
+    <div v-else class="user-dashboard">
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="hero-title">Find Your Perfect Companion</h1>
+        </div>
+      </section>
+
+      <div class="main-container">
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3>Filters</h3>
+            <button class="clear-all" @click="clearFilters">Clear All</button>
+          </div>
+
+          <div class="filter-section">
+            <h4>Pet Type</h4>
+            <label class="checkbox-label">
+              <input type="checkbox" value="dogs" v-model="filters.petType" />
+              <span>Dogs</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" value="cats" v-model="filters.petType" />
+              <span>Cats</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" value="rabbits" v-model="filters.petType" />
+              <span>Rabbits</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" value="birds" v-model="filters.petType" />
+              <span>Birds</span>
+            </label>
+          </div>
+
+          <div class="filter-section">
+            <h4>Age</h4>
+            <label class="radio-label">
+              <input type="radio" name="age" value="puppy" v-model="filters.age" />
+              <span>Puppy/Kitten</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="age" value="young" v-model="filters.age" />
+              <span>Young</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="age" value="adult" v-model="filters.age" />
+              <span>Adult</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="age" value="senior" v-model="filters.age" />
+              <span>Senior</span>
+            </label>
+          </div>
+        </aside>
+
+        <main class="pets-content">
+          <div class="pets-header">
+            <h2>Showing 247 pets</h2>
+          </div>
+
+          <div class="pets-grid">
+            <div v-for="pet in pets" :key="pet.id" class="pet-card">
+              <div class="pet-image-wrapper">
+                <img :src="pet.image" :alt="pet.name" class="pet-image" />
+              </div>
+              
+              <div class="pet-info">
+                <h3 class="pet-name">{{ pet.name }}</h3>
+                <p class="pet-details">
+                  <span class="detail-item">{{ pet.breed }}</span>
+                  <span class="separator">•</span>
+                  <span class="detail-item">{{ pet.age }}</span>
+                </p>
+                <p class="pet-details">
+                  <span class="detail-item">📍 {{ pet.location }}</span>
+                  <span class="separator">•</span>
+                  <span class="detail-item">{{ pet.distance }}</span>
+                </p>
+                <button class="adopt-btn">Adopt Me</button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   </div>
 </template>
@@ -307,6 +435,29 @@ const clearFilters = () => {
   gap: 16px;
 }
 
+.user-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.badge-user {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-shelter {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-admin {
+  background: #fce7f3;
+  color: #9f1239;
+}
+
 .user-name {
   color: #6b7280;
   font-size: 14px;
@@ -340,6 +491,14 @@ const clearFilters = () => {
   background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
   padding: 60px 24px;
   text-align: center;
+}
+
+.hero-admin {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.hero-shelter {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .hero-content {
@@ -609,6 +768,186 @@ const clearFilters = () => {
 
 .adopt-btn:hover {
   background: #7c3aed;
+}
+
+/* Admin Dashboard Styles */
+.admin-content,
+.shelter-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 36px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 12px;
+}
+
+.stat-info h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-number {
+  margin: 4px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-sections,
+.shelter-sections {
+  display: grid;
+  gap: 24px;
+}
+
+.admin-section,
+.shelter-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h2,
+.shelter-section h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-table,
+.requests-list {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-text {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Shelter Dashboard Styles */
+.action-bar {
+  margin-bottom: 24px;
+}
+
+.primary-btn {
+  padding: 12px 24px;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.primary-btn:hover {
+  background: #059669;
+}
+
+.pets-grid-small {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.pet-card-small {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pet-card-small img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.pet-card-info {
+  padding: 12px;
+}
+
+.pet-card-info h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.pet-card-info p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.pet-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit,
+.btn-delete {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-edit {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.8;
 }
 
 @media (max-width: 1024px) {
