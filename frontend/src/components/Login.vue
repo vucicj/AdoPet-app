@@ -1,10 +1,56 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import petImage from '@/assets/images/dog-login.webp'
 
 const router = useRouter()
 
+const form = ref({
+  email: '',
+  password: ''
+})
+
+const loading = ref(false)
+const errorMessage = ref('')
+
 const goRegister = () => router.push('/register')
+
+const handleLogin = async () => {
+  try {
+    errorMessage.value = ''
+    loading.value = true
+
+    const response = await fetch('http://localhost:8000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        email: form.value.email,
+        password: form.value.password
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      errorMessage.value = data.message || 'Login failed'
+      console.error('Login response:', data)
+      return
+    }
+
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+
+    router.push('/dashboard')
+  } catch (error) {
+    errorMessage.value = error.message || 'An error occurred'
+    console.error('Login error:', error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -28,19 +74,21 @@ const goRegister = () => router.push('/register')
 				<div class="form-content">
 					<h2>Welcome Back</h2>
 
+					<div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
 					<label class="field">
 						<span>Email</span>
-						<input type="email" placeholder="you@example.com" />
+						<input v-model="form.email" type="email" placeholder="you@example.com" />
 					</label>
 
 					<label class="field">
 						<span>Password</span>
-						<input type="password" placeholder="••••••••" />
+						<input v-model="form.password" type="password" placeholder="••••••••" />
 					</label>
 
-					
-
-					<button class="primary" type="button">Login</button>
+					<button class="primary" type="button" @click="handleLogin" :disabled="loading">
+						{{ loading ? 'Logging in...' : 'Login' }}
+					</button>
 
 					<div class="signup-prompt">
 						<p>Don't have an account? <button class="signup-link" type="button" @click="goRegister">Create account</button></p>
@@ -159,6 +207,16 @@ const goRegister = () => router.push('/register')
 	color: #2f2f41;
 }
 
+.error-message {
+	padding: 12px 14px;
+	border-radius: 8px;
+	background: #fee;
+	color: #c33;
+	font-size: 14px;
+	border-left: 4px solid #c33;
+	margin-bottom: 8px;
+}
+
 .field {
 	display: grid;
 	gap: 8px;
@@ -223,6 +281,12 @@ const goRegister = () => router.push('/register')
 
 .primary:hover {
 	transform: translateY(-1px);
+}
+
+.primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
 }
 
 .signup-prompt {

@@ -1,10 +1,69 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import petImage from '@/assets/images/dog-login.webp'
 
 const router = useRouter()
 
+const form = ref({
+  name: '',
+  surname: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+})
+
+const loading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+
 const goLogin = () => router.push('/')
+
+const handleRegister = async () => {
+  try {
+    errorMessage.value = ''
+    loading.value = true
+
+    const fullName = `${form.value.name} ${form.value.surname}`.trim()
+
+    const response = await fetch('http://localhost:8000/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        name: fullName,
+        email: form.value.email,
+        password: form.value.password,
+        password_confirmation: form.value.password_confirmation
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      if (response.status === 422 && data.errors) {
+        const errors = Object.values(data.errors).flat()
+        errorMessage.value = errors.join(', ')
+      } else {
+        errorMessage.value = data.message || 'Registration failed'
+      }
+      console.error('Registration response:', data)
+      return
+    }
+
+    successMessage.value = 'Registration successful! Redirecting to login...'
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  } catch (error) {
+    errorMessage.value = error.message || 'An error occurred'
+    console.error('Registration error:', error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -28,27 +87,37 @@ const goLogin = () => router.push('/')
         <div class="form-content">
           <h2>Create your account</h2>
 
+          <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+          <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
           <label class="field">
             <span>Name</span>
-            <input type="text" placeholder="Jane" />
+            <input v-model="form.name" type="text" placeholder="Jane" />
           </label>
 
           <label class="field">
             <span>Surname</span>
-            <input type="text" placeholder="Doe" />
+            <input v-model="form.surname" type="text" placeholder="Doe" />
           </label>
 
           <label class="field">
             <span>Email</span>
-            <input type="email" placeholder="you@example.com" />
+            <input v-model="form.email" type="email" placeholder="you@example.com" />
           </label>
 
           <label class="field">
             <span>Password</span>
-            <input type="password" placeholder="••••••••" />
+            <input v-model="form.password" type="password" placeholder="••••••••" />
           </label>
 
-          <button class="primary" type="button">Create account</button>
+          <label class="field">
+            <span>Confirm Password</span>
+            <input v-model="form.password_confirmation" type="password" placeholder="••••••••" />
+          </label>
+
+          <button class="primary" type="button" @click="handleRegister" :disabled="loading">
+            {{ loading ? 'Creating account...' : 'Create account' }}
+          </button>
 
           <div class="signup-prompt">
             <p>Already have an account? <button class="signup-link" type="button" @click="goLogin">Login</button></p>
@@ -60,7 +129,6 @@ const goLogin = () => router.push('/')
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :global(body) {
   margin: 0;
@@ -168,6 +236,26 @@ const goLogin = () => router.push('/')
   color: #2f2f41;
 }
 
+.success-message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 14px;
+  border-left: 4px solid #10b981;
+  margin-bottom: 8px;
+}
+
+.error-message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fee;
+  color: #c33;
+  font-size: 14px;
+  border-left: 4px solid #c33;
+  margin-bottom: 8px;
+}
+
 .field {
   display: grid;
   gap: 8px;
@@ -232,6 +320,12 @@ const goLogin = () => router.push('/')
 
 .primary:hover {
   transform: translateY(-1px);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .signup-prompt {

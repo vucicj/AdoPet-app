@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Backend API</title>
+    <title>AdoPet API</title>
 </head>
 <body>
-    Backend radi
+    <h1>AdoPet API</h1>
+    <p>API is running</p>
 </body>
 </html>
