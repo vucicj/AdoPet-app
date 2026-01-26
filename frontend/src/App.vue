@@ -1,9 +1,7 @@
 <template>
-  <h1>Frontend radi </h1>
+  <RouterView />
 </template>
 
 <script setup>
+import { RouterView } from 'vue-router'
 </script>
-
-<style>
-</style>
