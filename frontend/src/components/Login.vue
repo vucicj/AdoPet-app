@@ -15,10 +15,7 @@ import petImage from '@/assets/images/dog-login.webp'
 			</div>
 
 			<div class="form-panel">
-				<div class="tabs">
-					<button class="tab active" type="button">Login</button>
-					<button class="tab" type="button">Register</button>
-				</div>
+				
 
 				<div class="form-content">
 					<h2>Welcome Back!</h2>
@@ -36,6 +33,10 @@ import petImage from '@/assets/images/dog-login.webp'
 					
 
 					<button class="primary" type="button">Login</button>
+
+					<div class="signup-prompt">
+						<p>Don't have an account? <button class="signup-link" type="button">Create account</button></p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -120,8 +121,9 @@ import petImage from '@/assets/images/dog-login.webp'
 
 .tabs {
 	display: flex;
+	justify-content: center;
 	gap: 18px;
-	font-size: 14px;
+	font-size: 16px;
 }
 
 .tab {
@@ -131,11 +133,11 @@ import petImage from '@/assets/images/dog-login.webp'
 	color: #8a8f9e;
 	font-weight: 600;
 	cursor: pointer;
+	font-size: 18px;
 }
 
 .tab.active {
 	color: #6a4fb7;
-	border-bottom: 2px solid #6a4fb7;
 }
 
 .form-content {
@@ -145,7 +147,7 @@ import petImage from '@/assets/images/dog-login.webp'
 
 .form-content h2 {
 	margin: 0 0 6px;
-	font-size: 22px;
+	font-size: 18px;
 	color: #2f2f41;
 }
 
@@ -213,6 +215,31 @@ import petImage from '@/assets/images/dog-login.webp'
 
 .primary:hover {
 	transform: translateY(-1px);
+}
+
+.signup-prompt {
+	text-align: center;
+	font-size: 14px;
+	color: #7a7f90;
+	margin-top: 8px;
+}
+
+.signup-prompt p {
+	margin: 0;
+}
+
+.signup-link {
+	border: none;
+	background: transparent;
+	color: #7d5fff;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: underline;
+	font-size: 14px;
+}
+
+.signup-link:hover {
+	color: #6a4fb7;
 }
 
 .divider {
