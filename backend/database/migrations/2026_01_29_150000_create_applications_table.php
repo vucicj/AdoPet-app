@@ -17,6 +17,27 @@ return new class extends Migration
             $table->foreignId('pet_id')->constrained()->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamp('applied_at')->useCurrent();
+            
+            // Personal Information
+            $table->string('full_name');
+            $table->string('email');
+            $table->string('phone_number');
+            $table->integer('age')->nullable();
+            
+            // Living Situation
+            $table->string('residence_type');
+            $table->string('own_or_rent');
+            $table->string('has_yard');
+            
+            // Pet Experience
+            $table->string('owned_pets_before');
+            $table->string('has_other_pets');
+            $table->text('other_pets_details')->nullable();
+            
+            // Commitment & Care
+            $table->string('hours_alone');
+            $table->text('adoption_reason');
+            
             $table->timestamps();
         });
     }

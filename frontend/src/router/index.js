@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard.vue'
 import ProfilePage from '@/components/ProfilePage.vue'
 import EditProfile from '@/components/EditProfile.vue'
 import Settings from '@/components/Settings.vue'
+import AdoptionApplicationForm from '@/components/AdoptionApplicationForm.vue'
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings
+  },
+  {
+    path: '/apply/:petId',
+    name: 'AdoptionApplication',
+    component: AdoptionApplicationForm
   }
 ]
 

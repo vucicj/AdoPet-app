@@ -15,6 +15,18 @@ class Application extends Model
         'pet_id',
         'status',
         'applied_at',
+        'full_name',
+        'email',
+        'phone_number',
+        'age',
+        'residence_type',
+        'own_or_rent',
+        'has_yard',
+        'owned_pets_before',
+        'has_other_pets',
+        'other_pets_details',
+        'hours_alone',
+        'adoption_reason',
     ];
 
     protected $casts = [

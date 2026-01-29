@@ -1,20 +1,44 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const user = ref({
   name: '',
   email: '',
-  avatar: 'https://via.placeholder.com/120'
+  avatar: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23d1d5db%22/%3E%3Ccircle cx=%22100%22 cy=%2255%22 r=%2235%22 fill=%22%23000000%22/%3E%3Cpath d=%22M 30 110 Q 30 85 100 85 Q 170 85 170 110 L 170 175 L 30 175 Z%22 fill=%22%23000000%22/%3E%3C/svg%3E'
 })
 
 const applications = ref([])
 const loading = ref(true)
 const error = ref('')
 
-const savedPets = ref(0)
-const adoptedPets = ref(0)
+const showContactModal = ref(false)
+const contactInfo = ref({
+  petName: '',
+  phone: '(555) 123-4567'
+})
+
+const pendingApplications = computed(() => {
+  return applications.value.filter(app => app.status === 'pending').length
+})
+
+const adoptedPets = computed(() => {
+  return applications.value.filter(app => app.status === 'approved').length
+})
+
+const isUserAShelter = computed(() => {
+  const userData = localStorage.getItem('user')
+  return userData ? JSON.parse(userData).role === 'shelter' : false
+})
+
+const getImagePath = (imageName) => {
+  try {
+    return new URL(`../assets/images/${imageName}`, import.meta.url).href
+  } catch {
+    return null
+  }
+}
 
 const getStatusClass = (status) => {
   return `status-${status}`
@@ -59,7 +83,17 @@ const withdrawApplication = async (id) => {
 }
 
 const contactShelter = (petName) => {
-  alert(`Contact shelter about ${petName}`)
+  const shelterPhone = '(555) 123-4567'
+  alert(`Shelter Contact Number: ${shelterPhone}\n\nPlease call this number to discuss the adoption of ${petName}`)
+}
+
+const showContactInfo = (petName) => {
+  contactInfo.value.petName = petName
+  showContactModal.value = true
+}
+
+const closeContactModal = () => {
+  showContactModal.value = false
 }
 
 onMounted(async () => {
@@ -77,19 +111,28 @@ onMounted(async () => {
       return
     }
 
-    const response = await fetch('http://localhost:8000/api/applications', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    const userRole = userData ? JSON.parse(userData).role : 'user'
 
-    if (response.ok) {
-      applications.value = await response.json()
-    } else if (response.status === 401) {
-      router.push('/')
-    } else {
-      error.value = 'Failed to load applications'
+    // Only fetch applications for non-shelter users
+    if (userRole !== 'shelter') {
+      const response = await fetch('http://localhost:8000/api/applications', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        applications.value = data.map(app => ({
+          ...app,
+          image: getImagePath(app.image) || getImagePath('dog1.jpg')
+        }))
+      } else if (response.status === 401) {
+        router.push('/')
+      } else {
+        error.value = 'Failed to load applications'
+      }
     }
   } catch (err) {
     console.error('Error loading profile:', err)
@@ -134,16 +177,9 @@ onMounted(async () => {
         <!-- Quick Stats -->
         <div class="quick-stats">
           <div class="stat-item">
-            <div class="stat-icon saved-icon">❤️</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ savedPets }}</div>
-              <div class="stat-label">Saved Pets</div>
-            </div>
-          </div>
-          <div class="stat-item">
             <div class="stat-icon applications-icon">📋</div>
             <div class="stat-content">
-              <div class="stat-value">{{ applications.length }}</div>
+              <div class="stat-value">{{ pendingApplications }}</div>
               <div class="stat-label">Applications</div>
             </div>
           </div>
@@ -157,8 +193,8 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- Applications Section -->
-      <section class="applications-section">
+      <!-- Applications Section - only for non-shelter users -->
+      <section class="applications-section" v-if="!isUserAShelter">
         <h2 class="section-title">My Applications</h2>
         
         <div v-if="applications.length === 0" class="empty-state">
@@ -182,7 +218,7 @@ onMounted(async () => {
               <div class="app-actions">
                 <button 
                   class="btn btn-success" 
-                  @click="contactShelter(app.petName)"
+                  @click="showContactInfo(app.petName)"
                   v-if="app.status === 'approved'"
                 >
                   Contact Shelter
@@ -190,6 +226,7 @@ onMounted(async () => {
                 <button 
                   class="btn btn-danger" 
                   @click="withdrawApplication(app.id)"
+                  v-if="app.status !== 'approved'"
                 >
                   Withdraw
                 </button>
@@ -198,6 +235,29 @@ onMounted(async () => {
           </div>
         </div>
       </section>
+
+      <!-- Contact Shelter Modal -->
+      <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
+        <div class="modal-content" @click.stop>
+          <button class="modal-close" @click="closeContactModal">✕</button>
+          <div class="modal-body">
+            <div class="modal-icon">📞</div>
+            <h2 class="modal-title">Contact the Shelter</h2>
+            <p class="modal-subtitle">For adoption of <strong>{{ contactInfo.petName }}</strong></p>
+            
+            <div class="contact-section">
+              <div class="contact-item">
+                <div class="contact-label">Phone</div>
+                <a :href="`tel:${contactInfo.phone}`" class="contact-value phone-link">{{ contactInfo.phone }}</a>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn btn-primary" @click="closeContactModal" style="width: 100%;">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -524,6 +584,137 @@ onMounted(async () => {
   flex: 1;
   min-width: 120px;
   padding: 0.625rem 1rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: #1f2937;
+}
+
+.modal-body {
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.modal-subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0 0 2rem 0;
+}
+
+.contact-section {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.contact-item {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.contact-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: inline-block;
+}
+
+.phone-link:hover,
+.email-link:hover {
+  color: #7c3aed;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.modal-actions .btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 768px) {

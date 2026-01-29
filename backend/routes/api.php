@@ -26,4 +26,8 @@ Route::middleware(['api', 'auth:sanctum'])
         Route::get('/applications', [ApplicationController::class, 'userApplications']);
         Route::post('/applications', [ApplicationController::class, 'store']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'withdraw']);
+
+        // Shelter applications
+        Route::get('/shelter/applications', [ApplicationController::class, 'shelterApplications']);
+        Route::put('/shelter/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
     });

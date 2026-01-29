@@ -19,16 +19,11 @@ const getImagePath = (imageName) => {
   }
 }
 
-onMounted(async () => {
-  const userData = localStorage.getItem('user')
-  if (userData) {
-    user.value = JSON.parse(userData)
-  }
-
+const fetchPets = async () => {
   try {
     const response = await fetch('http://localhost:8000/api/pets')
     const data = await response.json()
-    
+
     pets.value = data.map(pet => ({
       ...pet,
       image: getImagePath(pet.image)
@@ -39,6 +34,15 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    user.value = JSON.parse(userData)
+  }
+
+  await fetchPets()
 })
 
 const handleLogout = () => {
@@ -54,7 +58,7 @@ const handleLogout = () => {
     <DashboardHeader :user="user" @logout="handleLogout" />
     
     <UserDashboard v-if="!user?.role || user?.role === 'user'" :pets="pets" />
-    <ShelterDashboard v-else-if="user?.role === 'shelter'" :pets="pets" />
+    <ShelterDashboard v-else-if="user?.role === 'shelter'" :pets="pets" @refresh-pets="fetchPets" />
     <AdminDashboard v-else-if="user?.role === 'admin'" :pets="pets" />
   </div>
 </template>

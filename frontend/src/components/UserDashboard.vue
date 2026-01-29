@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
   pets: {
     type: Array,
@@ -15,6 +17,18 @@ const filters = ref({
   location: ''
 })
 
+const userApplications = ref([])
+
+const availablePets = computed(() => {
+  // Filter out pets that have approved applications
+  return props.pets.filter(pet => {
+    const hasApprovedApplication = userApplications.value.some(
+      app => app.pet_id === pet.id && app.status === 'approved'
+    )
+    return !hasApprovedApplication
+  })
+})
+
 const clearFilters = () => {
   filters.value = {
     petType: [],
@@ -23,6 +37,30 @@ const clearFilters = () => {
     location: ''
   }
 }
+
+const applyForPet = (petId) => {
+  router.push(`/apply/${petId}`)
+}
+
+onMounted(async () => {
+  // Fetch user applications to check which pets are approved
+  try {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const response = await fetch('http://localhost:8000/api/applications', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        userApplications.value = await response.json()
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch applications:', error)
+  }
+})
 </script>
 
 <template>
@@ -83,11 +121,11 @@ const clearFilters = () => {
 
       <main class="pets-content">
         <div class="pets-header">
-          <h2>Showing {{ pets.length }} pets</h2>
+          <h2>Showing {{ availablePets.length }} pets</h2>
         </div>
 
         <div class="pets-grid">
-          <div v-for="pet in pets" :key="pet.id" class="pet-card">
+          <div v-for="pet in availablePets" :key="pet.id" class="pet-card">
             <div class="pet-image-wrapper">
               <img :src="pet.image" :alt="pet.name" class="pet-image" />
             </div>
@@ -104,7 +142,7 @@ const clearFilters = () => {
                 <span class="separator">•</span>
                 <span class="detail-item">{{ pet.distance }}</span>
               </p>
-              <button class="adopt-btn">Adopt Me</button>
+              <button class="adopt-btn" @click="applyForPet(pet.id)">Adopt Me</button>
             </div>
           </div>
         </div>
