@@ -168,12 +168,15 @@ onMounted(async () => {
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   line-height: 0;
+  height: 420px;
 }
 
 .main-image img {
   width: 100%;
-  height: 420px;
+  height: 100%;
   object-fit: cover;
+  object-position: center;
+  transform: scale(1.08);
   display: block;
   vertical-align: top;
 }
