@@ -6,6 +6,7 @@ import ProfilePage from '@/components/ProfilePage.vue'
 import EditProfile from '@/components/EditProfile.vue'
 import Settings from '@/components/Settings.vue'
 import AdoptionApplicationForm from '@/components/AdoptionApplicationForm.vue'
+import PetDetails from '@/components/PetDetails.vue'
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/apply/:petId',
     name: 'AdoptionApplication',
     component: AdoptionApplicationForm
+  },
+  {
+    path: '/pets/:petId',
+    name: 'PetDetails',
+    component: PetDetails
   }
 ]
 

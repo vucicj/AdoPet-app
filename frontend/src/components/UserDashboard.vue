@@ -42,6 +42,10 @@ const applyForPet = (petId) => {
   router.push(`/apply/${petId}`)
 }
 
+const viewDetails = (petId) => {
+  router.push(`/pets/${petId}`)
+}
+
 onMounted(async () => {
   // Fetch user applications to check which pets are approved
   try {
@@ -142,7 +146,10 @@ onMounted(async () => {
                 <span class="separator">•</span>
                 <span class="detail-item">{{ pet.distance }}</span>
               </p>
-              <button class="adopt-btn" @click="applyForPet(pet.id)">Adopt Me</button>
+              <div class="pet-actions">
+                <button class="details-btn" @click="viewDetails(pet.id)">Details</button>
+                <button class="adopt-btn" @click="applyForPet(pet.id)">Adopt Me</button>
+              </div>
             </div>
           </div>
         </div>
@@ -322,10 +329,32 @@ onMounted(async () => {
   color: #d1d5db;
 }
 
-.adopt-btn {
-  width: 100%;
-  padding: 12px;
+.pet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   margin-top: 12px;
+}
+
+.details-btn {
+  padding: 12px;
+  background: #f3f4f6;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.details-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.adopt-btn {
+  padding: 12px;
   background: #8b5cf6;
   color: #fff;
   border: none;
