@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import defaultAvatar from '@/assets/images/siluette for logo.webp'
 
 const router = useRouter()
 const user = ref({
   name: '',
   email: '',
-  avatar: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23d1d5db%22/%3E%3Ccircle cx=%22100%22 cy=%2255%22 r=%2235%22 fill=%22%23000000%22/%3E%3Cpath d=%22M 30 110 Q 30 85 100 85 Q 170 85 170 110 L 170 175 L 30 175 Z%22 fill=%22%23000000%22/%3E%3C/svg%3E'
+  avatar: defaultAvatar
 })
 
 const applications = ref([])
