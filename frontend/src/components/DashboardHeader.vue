@@ -14,6 +14,10 @@ const router = useRouter()
 const handleLogout = () => {
   emit('logout')
 }
+
+const goToProfile = () => {
+  router.push('/profile')
+}
 </script>
 
 <template>
@@ -32,7 +36,7 @@ const handleLogout = () => {
         <span class="user-badge" :class="'badge-' + (user?.role || 'user')">
           {{ user?.role?.toUpperCase() || 'USER' }}
         </span>
-        <span class="user-name" v-if="user">{{ user.name }}</span>
+        <span class="user-name" v-if="user" @click="goToProfile" style="cursor: pointer;">{{ user.name }}</span>
         <button class="logout-btn" @click="handleLogout">
           <span class="logout-icon">🚪</span>
           Logout
