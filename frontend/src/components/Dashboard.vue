@@ -55,7 +55,7 @@ const handleLogout = () => {
 
 <template>
   <div class="dashboard">
-    <DashboardHeader :user="user" @logout="handleLogout" />
+    <DashboardHeader :user="user" />
     
     <UserDashboard v-if="!user?.role || user?.role === 'user'" :pets="pets" />
     <ShelterDashboard v-else-if="user?.role === 'shelter'" :pets="pets" @refresh-pets="fetchPets" />

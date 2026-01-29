@@ -8,15 +8,14 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['logout'])
 const router = useRouter()
-
-const handleLogout = () => {
-  emit('logout')
-}
 
 const goToProfile = () => {
   router.push('/profile')
+}
+
+const goToShelterApplication = () => {
+  router.push('/shelter-application')
 }
 </script>
 
@@ -28,19 +27,15 @@ const goToProfile = () => {
         <span class="brand-name">AdoPet</span>
       </div>
       
-      <nav class="nav-links">
-        <a href="#" class="nav-link">About</a>
-      </nav>
-
       <div class="user-section">
-        <span class="user-badge" :class="'badge-' + (user?.role || 'user')">
-          {{ user?.role?.toUpperCase() || 'USER' }}
-        </span>
-        <span class="user-name" v-if="user" @click="goToProfile" style="cursor: pointer;">{{ user.name }}</span>
-        <button class="logout-btn" @click="handleLogout">
-          <span class="logout-icon">🚪</span>
-          Logout
+        <button
+          v-if="!user?.role || user?.role === 'user'"
+          class="shelter-apply-btn"
+          @click="goToShelterApplication"
+        >
+          Apply as Shelter
         </button>
+        <span class="user-name" v-if="user" @click="goToProfile" style="cursor: pointer;">{{ user.name }}</span>
       </div>
     </div>
   </header>
@@ -82,83 +77,32 @@ const goToProfile = () => {
   color: #1f2937;
 }
 
-.nav-links {
-  display: flex;
-  gap: 32px;
-}
-
-.nav-link {
-  color: #6b7280;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #8b5cf6;
-}
-
 .user-section {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.user-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.badge-user {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge-shelter {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge-admin {
-  background: #fce7f3;
-  color: #9f1239;
-}
-
-.user-name {
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: #ef4444;
+.shelter-apply-btn {
+  padding: 8px 14px;
+  background: #10b981;
   color: #fff;
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: background 0.2s;
 }
 
-.logout-btn:hover {
-  background: #dc2626;
-}
-
-.logout-icon {
-  font-size: 16px;
+.shelter-apply-btn:hover {
+  background: #059669;
 }
 
 @media (max-width: 768px) {
-  .nav-links {
-    display: none;
+  .user-section {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
 </style>

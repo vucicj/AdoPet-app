@@ -7,6 +7,7 @@ const router = useRouter()
 const user = ref({
   name: '',
   email: '',
+  role: 'user',
   avatar: defaultAvatar
 })
 
@@ -61,6 +62,12 @@ const closePage = () => {
   router.push('/dashboard')
 }
 
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  router.push('/')
+}
+
 const withdrawApplication = async (id) => {
   try {
     const token = localStorage.getItem('token')
@@ -104,6 +111,7 @@ onMounted(async () => {
       const parsedUser = JSON.parse(userData)
       user.value.name = parsedUser.name
       user.value.email = parsedUser.email
+      user.value.role = parsedUser.role || 'user'
     }
 
     const token = localStorage.getItem('token')
@@ -166,11 +174,15 @@ onMounted(async () => {
             <img :src="user.avatar" :alt="user.name" />
           </div>
           <div class="profile-info">
-            <h1 class="profile-name">{{ user.name }}</h1>
+            <h1 class="profile-name">
+              {{ user.name }}
+              <span class="role-pill">{{ (user.role || 'user').toUpperCase() }}</span>
+            </h1>
             <p class="profile-email">{{ user.email }}</p>
             <div class="profile-actions">
               <button class="btn btn-primary" @click="editProfile">Edit Profile</button>
               <button class="btn btn-secondary" @click="viewSettings">Settings</button>
+              <button class="btn btn-logout" @click="handleLogout">Logout</button>
             </div>
           </div>
         </div>
@@ -357,6 +369,21 @@ onMounted(async () => {
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 .profile-email {
@@ -398,6 +425,15 @@ onMounted(async () => {
 
 .btn-secondary:hover {
   background: #e5e7eb;
+}
+
+.btn-logout {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-logout:hover {
+  background: #dc2626;
 }
 
 .btn-success {

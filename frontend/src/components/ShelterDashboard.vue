@@ -22,6 +22,22 @@ const approvedApplications = computed(() =>
   applications.value.filter(app => app.status === 'approved')
 )
 
+const activePets = computed(() =>
+  props.pets.filter(pet => !adoptedPetIds.value.has(pet.id) && pet.status !== 'adopted')
+)
+
+const adoptedPetIds = computed(() => {
+  return new Set(
+    applications.value
+      .filter(app => app.status === 'approved')
+      .map(app => app.pet_id)
+  )
+})
+
+const visibleApplications = computed(() =>
+  applications.value.filter(app => app.status !== 'approved' && app.pet_status !== 'adopted')
+)
+
 const fetchApplications = async () => {
   try {
     const token = localStorage.getItem('token')
@@ -96,7 +112,7 @@ onMounted(() => {
           <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Your Pets</h3>
-            <p class="stat-number">{{ pets.length }}</p>
+            <p class="stat-number">{{ activePets.length }}</p>
           </div>
         </div>
         <div class="stat-card">
@@ -119,11 +135,11 @@ onMounted(() => {
         <!-- Applications Section -->
         <div class="shelter-section">
           <h2>Recent Applications</h2>
-          <div v-if="applications.length === 0" class="empty-state">
+          <div v-if="visibleApplications.length === 0" class="empty-state">
             No applications yet
           </div>
           <div v-else class="applications-list">
-            <div v-for="app in applications" :key="app.id" class="application-item">
+            <div v-for="app in visibleApplications" :key="app.id" class="application-item">
               <img :src="app.pet_image" :alt="app.pet_name" class="app-pet-image" />
               <div class="app-info">
                 <h3>{{ app.full_name }}</h3>
@@ -143,7 +159,7 @@ onMounted(() => {
         <div class="shelter-section">
           <h2>Your Pets</h2>
           <div class="pets-grid-small">
-            <div v-for="pet in pets.slice(0, 6)" :key="pet.id" class="pet-card-small">
+            <div v-for="pet in activePets" :key="pet.id" class="pet-card-small">
               <img :src="pet.image" :alt="pet.name" />
               <div class="pet-card-info">
                 <h4>{{ pet.name }}</h4>

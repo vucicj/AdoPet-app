@@ -7,6 +7,7 @@ import EditProfile from '@/components/EditProfile.vue'
 import Settings from '@/components/Settings.vue'
 import AdoptionApplicationForm from '@/components/AdoptionApplicationForm.vue'
 import PetDetails from '@/components/PetDetails.vue'
+import ShelterApplicationForm from '@/components/ShelterApplicationForm.vue'
 
 const routes = [
   {
@@ -38,6 +39,11 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings
+  },
+  {
+    path: '/shelter-application',
+    name: 'ShelterApplication',
+    component: ShelterApplicationForm
   },
   {
     path: '/apply/:petId',

@@ -104,9 +104,11 @@ class ApplicationController extends Controller
             ->map(function ($app) {
                 return [
                     'id' => $app->id,
+                    'pet_id' => $app->pet_id,
                     'user_name' => $app->user->name,
                     'pet_name' => $app->pet->name,
                     'pet_image' => $app->pet->image,
+                    'pet_status' => $app->pet->status,
                     'status' => $app->status,
                     'applied_at' => $app->applied_at->format('F d, Y'),
                     'full_name' => $app->full_name,
