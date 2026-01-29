@@ -126,7 +126,7 @@ onMounted(async () => {
         const data = await response.json()
         applications.value = data.map(app => ({
           ...app,
-          image: getImagePath(app.image) || getImagePath('dog1.jpg')
+          image: getImagePath(app.image) 
         }))
       } else if (response.status === 401) {
         router.push('/')
