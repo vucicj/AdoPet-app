@@ -53,6 +53,7 @@ class ApplicationController extends Controller
 
         $existingApplication = Application::where('user_id', $user->id)
             ->where('pet_id', $request->pet_id)
+            ->whereIn('status', ['pending', 'approved'])
             ->first();
 
         if ($existingApplication) {
@@ -95,8 +96,11 @@ class ApplicationController extends Controller
             return response()->json(['message' => 'Application not found'], 404);
         }
 
-        if ($application->pet && $application->status === 'pending') {
-            $application->pet->update(['status' => 'available']);
+        if ($application->pet) {
+            if ($application->status === 'pending') {
+                $application->pet->update(['status' => 'available']);
+            }
+            // For rejected applications, pet is already available, no change needed
         }
 
         $application->delete();

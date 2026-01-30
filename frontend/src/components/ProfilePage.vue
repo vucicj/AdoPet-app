@@ -239,9 +239,16 @@ onMounted(async () => {
                 <button 
                   class="btn btn-danger" 
                   @click="withdrawApplication(app.id)"
-                  v-if="app.status !== 'approved'"
+                  v-if="app.status === 'pending'"
                 >
                   Withdraw
+                </button>
+                <button 
+                  class="btn btn-danger" 
+                  @click="withdrawApplication(app.id)"
+                  v-if="app.status === 'rejected'"
+                >
+                  Remove
                 </button>
               </div>
             </div>
