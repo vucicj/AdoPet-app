@@ -96,11 +96,15 @@ class ApplicationController extends Controller
             return response()->json(['message' => 'Application not found'], 404);
         }
 
-        if ($application->pet) {
-            if ($application->status === 'pending') {
+        if ($application->pet && $application->status === 'pending') {
+            $otherPendingApps = Application::where('pet_id', $application->pet_id)
+                ->where('id', '!=', $application->id)
+                ->where('status', 'pending')
+                ->exists();
+            
+            if (!$otherPendingApps) {
                 $application->pet->update(['status' => 'available']);
             }
-            // For rejected applications, pet is already available, no change needed
         }
 
         $application->delete();
@@ -158,8 +162,22 @@ class ApplicationController extends Controller
         if ($application->pet) {
             if ($request->status === 'approved') {
                 $application->pet->update(['status' => 'adopted']);
+                
+                // Auto-reject all other pending applications for this pet
+                Application::where('pet_id', $application->pet_id)
+                    ->where('id', '!=', $application->id)
+                    ->where('status', 'pending')
+                    ->update(['status' => 'rejected']);
             } elseif ($request->status === 'rejected') {
-                $application->pet->update(['status' => 'available']);
+                // Only set to available if no other pending applications exist
+                $otherPendingApps = Application::where('pet_id', $application->pet_id)
+                    ->where('id', '!=', $application->id)
+                    ->where('status', 'pending')
+                    ->exists();
+                
+                if (!$otherPendingApps) {
+                    $application->pet->update(['status' => 'available']);
+                }
             }
         }
 
