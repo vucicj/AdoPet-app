@@ -95,6 +95,10 @@ class ApplicationController extends Controller
             return response()->json(['message' => 'Application not found'], 404);
         }
 
+        if ($application->pet && $application->status === 'pending') {
+            $application->pet->update(['status' => 'available']);
+        }
+
         $application->delete();
 
         return response()->json(['message' => 'Application withdrawn successfully']);
