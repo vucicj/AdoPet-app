@@ -77,6 +77,10 @@ class ApplicationController extends Controller
             'adoption_reason' => $request->adoption_reason,
         ]);
 
+        if ($application->pet) {
+            $application->pet->update(['status' => 'pending']);
+        }
+
         return response()->json(['message' => 'Application submitted successfully', 'data' => $application], 201);
     }
 
@@ -143,8 +147,12 @@ class ApplicationController extends Controller
 
         $application->update(['status' => $request->status]);
 
-        if ($request->status === 'approved' && $application->pet) {
-            $application->pet->update(['status' => 'adopted']);
+        if ($application->pet) {
+            if ($request->status === 'approved') {
+                $application->pet->update(['status' => 'adopted']);
+            } elseif ($request->status === 'rejected') {
+                $application->pet->update(['status' => 'available']);
+            }
         }
 
         return response()->json(['message' => 'Application status updated successfully', 'data' => $application]);
