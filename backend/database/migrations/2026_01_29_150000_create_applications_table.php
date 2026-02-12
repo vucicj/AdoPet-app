@@ -19,7 +19,6 @@ return new class extends Migration
             $table->timestamp('applied_at')->useCurrent();
             
             // Personal Information
-            $table->string('full_name');
             $table->string('email');
             $table->string('phone_number');
             $table->integer('age')->nullable();
