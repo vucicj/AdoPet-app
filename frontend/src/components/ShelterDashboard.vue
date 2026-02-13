@@ -120,7 +120,7 @@ const openEditModal = (pet) => {
     status: pet.status
   }
   imageFile.value = null
-  imagePreview.value = pet.image ? `http://localhost:5173/src/assets/images/${pet.image}` : null
+  imagePreview.value = pet.imageUrl || (pet.image ? `http://localhost:5173/src/assets/images/${pet.image}` : null)
   showEditModal.value = true
 }
 
@@ -148,6 +148,7 @@ const updatePet = async () => {
   try {
     const token = localStorage.getItem('token')
     
+    // Build pet data - always include all fields including the original image
     const petData = {
       name: editForm.value.name,
       breed: editForm.value.breed,
@@ -156,6 +157,7 @@ const updatePet = async () => {
       location: editForm.value.location,
       distance: editForm.value.distance,
       status: editForm.value.status,
+      // Keep the image from editForm (either original or new filename)
       image: editForm.value.image
     }
     
@@ -293,7 +295,7 @@ const goAddPet = () => {
           <h2>Your Pets</h2>
           <div class="pets-grid-small">
             <div v-for="pet in activePets" :key="pet.id" class="pet-card-small">
-              <img :src="pet.image" :alt="pet.name" />
+              <img :src="pet.imageUrl || pet.image" :alt="pet.name" />
               <div class="pet-card-info">
                 <h4>{{ pet.name }}</h4>
                 <p>{{ pet.breed }}</p>

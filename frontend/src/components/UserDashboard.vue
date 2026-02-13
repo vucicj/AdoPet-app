@@ -131,7 +131,7 @@ onMounted(async () => {
         <div class="pets-grid">
           <div v-for="pet in availablePets" :key="pet.id" class="pet-card">
             <div class="pet-image-wrapper">
-              <img :src="pet.image" :alt="pet.name" class="pet-image" />
+              <img :src="pet.imageUrl || pet.image" :alt="pet.name" class="pet-image" />
             </div>
             
             <div class="pet-info">

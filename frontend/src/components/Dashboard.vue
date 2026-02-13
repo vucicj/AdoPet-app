@@ -12,6 +12,19 @@ const pets = ref([])
 const loading = ref(true)
 
 const getImagePath = (imageName) => {
+  if (!imageName) {
+    return null
+  }
+
+  if (
+    imageName.startsWith('http://') ||
+    imageName.startsWith('https://') ||
+    imageName.startsWith('data:') ||
+    imageName.startsWith('/')
+  ) {
+    return imageName
+  }
+
   try {
     return new URL(`../assets/images/${imageName}`, import.meta.url).href
   } catch {
@@ -19,15 +32,40 @@ const getImagePath = (imageName) => {
   }
 }
 
+const normalizeImageName = (imageValue) => {
+  if (!imageValue) {
+    return ''
+  }
+
+  try {
+    if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) {
+      const url = new URL(imageValue)
+      return url.pathname.split('/').pop() || ''
+    }
+  } catch {
+    // Fall through to simple parsing
+  }
+
+  if (imageValue.includes('/')) {
+    return imageValue.split('/').pop() || imageValue
+  }
+
+  return imageValue
+}
+
 const fetchPets = async () => {
   try {
     const response = await fetch('http://localhost:8000/api/pets')
     const data = await response.json()
 
-    pets.value = data.map(pet => ({
-      ...pet,
-      image: getImagePath(pet.image)
-    }))
+    pets.value = data.map(pet => {
+      const imageName = normalizeImageName(pet.image)
+      return {
+        ...pet,
+        image: imageName,
+        imageUrl: getImagePath(imageName) || getImagePath(pet.image)
+      }
+    })
   } catch (error) {
     console.error('Failed to fetch pets:', error)
     pets.value = []
