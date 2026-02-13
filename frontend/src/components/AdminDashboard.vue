@@ -1,9 +1,84 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+
 const props = defineProps({
   pets: {
     type: Array,
     default: () => []
   }
+})
+
+const stats = ref({
+  totalUsers: 0,
+  totalShelters: 0,
+  totalPets: 0,
+  totalAdoptions: 0
+})
+const recentUsers = ref([])
+const recentShelters = ref([])
+const loading = ref(true)
+const error = ref('')
+
+const fetchStats = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8000/api/admin/stats', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      stats.value = await response.json()
+    } else {
+      error.value = 'Failed to load statistics'
+    }
+  } catch (err) {
+    console.error('Error fetching stats:', err)
+    error.value = 'Error loading statistics'
+  }
+}
+
+const fetchRecentUsers = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8000/api/admin/recent-users', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      recentUsers.value = await response.json()
+    }
+  } catch (err) {
+    console.error('Error fetching recent users:', err)
+  }
+}
+
+const fetchRecentShelters = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8000/api/admin/recent-shelters', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      recentShelters.value = await response.json()
+    }
+  } catch (err) {
+    console.error('Error fetching recent shelters:', err)
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([fetchStats(), fetchRecentUsers(), fetchRecentShelters()])
+  loading.value = false
 })
 </script>
 
@@ -16,34 +91,42 @@ const props = defineProps({
       </div>
     </section>
 
-    <div class="admin-content">
+    <div v-if="error" class="error-banner">
+      {{ error }}
+    </div>
+
+    <div v-if="loading" class="loading">
+      <p>Loading admin data...</p>
+    </div>
+
+    <div v-else class="admin-content">
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-info">
             <h3>Total Users</h3>
-            <p class="stat-number">1,234</p>
+            <p class="stat-number">{{ stats.totalUsers }}</p>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🏠</div>
           <div class="stat-info">
             <h3>Shelters</h3>
-            <p class="stat-number">45</p>
+            <p class="stat-number">{{ stats.totalShelters }}</p>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Total Pets</h3>
-            <p class="stat-number">{{ pets.length }}</p>
+            <p class="stat-number">{{ stats.totalPets }}</p>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">❤️</div>
           <div class="stat-info">
             <h3>Adoptions</h3>
-            <p class="stat-number">892</p>
+            <p class="stat-number">{{ stats.totalAdoptions }}</p>
           </div>
         </div>
       </div>
@@ -52,13 +135,54 @@ const props = defineProps({
         <div class="admin-section">
           <h2>Recent Users</h2>
           <div class="admin-table">
-            <p class="placeholder-text">User management coming soon...</p>
+            <table v-if="recentUsers.length > 0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="user in recentUsers" :key="user.id">
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    <span class="role-badge" :class="`role-${user.role}`">
+                      {{ user.role.toUpperCase() }}
+                    </span>
+                  </td>
+                  <td>{{ user.created_at }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p v-else class="placeholder-text">No users found</p>
           </div>
         </div>
+        
         <div class="admin-section">
           <h2>Recent Shelters</h2>
           <div class="admin-table">
-            <p class="placeholder-text">Shelter management coming soon...</p>
+            <table v-if="recentShelters.length > 0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Pets</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="shelter in recentShelters" :key="shelter.id">
+                  <td>{{ shelter.name }}</td>
+                  <td>{{ shelter.email }}</td>
+                  <td>{{ shelter.pets_count }}</td>
+                  <td>{{ shelter.created_at }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p v-else class="placeholder-text">No shelters found</p>
           </div>
         </div>
       </div>
@@ -165,15 +289,78 @@ const props = defineProps({
 }
 
 .admin-table {
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow-x: auto;
+}
+
+.admin-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 12px;
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.admin-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-user {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.role-shelter {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.role-admin {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.error-banner {
+  background: #fee;
+  color: #c00;
+  padding: 12px 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: #6b7280;
 }
 
 .placeholder-text {
   color: #9ca3af;
   font-size: 14px;
+  text-align: center;
+  padding: 48px;
 }
 
 @media (max-width: 768px) {

@@ -37,9 +37,36 @@ const fetchPets = async () => {
 }
 
 onMounted(async () => {
-  const userData = localStorage.getItem('user')
-  if (userData) {
-    user.value = JSON.parse(userData)
+  // Fetch fresh user data from the API
+  try {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const response = await fetch('http://localhost:8000/api/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const freshUser = await response.json()
+        user.value = freshUser
+        localStorage.setItem('user', JSON.stringify(freshUser))
+      } else {
+        // Token invalid, use cached data
+        const userData = localStorage.getItem('user')
+        if (userData) {
+          user.value = JSON.parse(userData)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch user:', error)
+    // Fallback to cached data
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      user.value = JSON.parse(userData)
+    }
   }
 
   await fetchPets()

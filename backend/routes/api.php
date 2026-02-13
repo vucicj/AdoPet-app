@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('api')
@@ -30,4 +31,10 @@ Route::middleware(['api', 'auth:sanctum'])
         // Shelter applications
         Route::get('/shelter/applications', [ApplicationController::class, 'shelterApplications']);
         Route::put('/shelter/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
+
+        // Admin routes
+        Route::get('/admin/stats', [AdminController::class, 'getStats']);
+        Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
+        Route::get('/admin/recent-users', [AdminController::class, 'getRecentUsers']);
+        Route::get('/admin/recent-shelters', [AdminController::class, 'getRecentShelters']);
     });

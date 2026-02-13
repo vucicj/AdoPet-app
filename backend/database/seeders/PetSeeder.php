@@ -10,6 +10,9 @@ class PetSeeder extends Seeder
 {
     public function run(): void
     {
+        // Shelter user has ID 2
+        $shelterId = 2;
+
         Pet::create([
             'name' => 'Max',
             'breed' => 'Golden Retriever',
@@ -18,7 +21,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '8 miles',
             'image' => 'dog1.jpg',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -29,7 +33,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '5 miles',
             'image' => 'cat2.jpg',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -40,7 +45,8 @@ class PetSeeder extends Seeder
             'location' => 'Chicago',
             'distance' => '12 miles',
             'image' => 'dog2.webp',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -51,7 +57,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '7 miles',
             'image' => 'rabbit1.webp',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -62,7 +69,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '4 miles',
             'image' => 'rabbit2.webp',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -73,7 +81,8 @@ class PetSeeder extends Seeder
             'location' => 'Portland',
             'distance' => '9 miles',
             'image' => 'bird1.jpg',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -84,7 +93,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '6 miles',
             'image' => 'bird2.jpg',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
 
         Pet::create([
@@ -95,7 +105,8 @@ class PetSeeder extends Seeder
             'location' => 'Austin',
             'distance' => '6 miles',
             'image' => 'cat1.jpg',
-            'status' => 'available'
+            'status' => 'available',
+            'shelter_id' => $shelterId
         ]);
     }
 }

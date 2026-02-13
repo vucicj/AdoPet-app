@@ -106,21 +106,41 @@ const closeContactModal = () => {
 
 onMounted(async () => {
   try {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const parsedUser = JSON.parse(userData)
-      user.value.name = parsedUser.name
-      user.value.email = parsedUser.email
-      user.value.role = parsedUser.role || 'user'
-    }
-
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/')
       return
     }
 
-    const userRole = userData ? JSON.parse(userData).role : 'user'
+    // Fetch fresh user data from the API
+    const userResponse = await fetch('http://localhost:8000/api/user', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (userResponse.ok) {
+      const freshUser = await userResponse.json()
+      user.value.name = freshUser.name
+      user.value.email = freshUser.email
+      user.value.role = freshUser.role || 'user'
+      localStorage.setItem('user', JSON.stringify(freshUser))
+    } else if (userResponse.status === 401) {
+      router.push('/')
+      return
+    } else {
+      // Fallback to cached data
+      const userData = localStorage.getItem('user')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        user.value.name = parsedUser.name
+        user.value.email = parsedUser.email
+        user.value.role = parsedUser.role || 'user'
+      }
+    }
+
+    const userRole = user.value.role
 
     // Only fetch applications for non-shelter users
     if (userRole !== 'shelter') {
