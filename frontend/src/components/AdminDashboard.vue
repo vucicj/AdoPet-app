@@ -8,8 +8,14 @@ const stats = ref({
   totalAdoptions: 0
 })
 const recentAccounts = ref([])
+const pets = ref([])
+const allAccounts = ref([])
 const loading = ref(true)
 const error = ref('')
+const viewingPets = ref(false)
+const viewingAccounts = ref(false)
+const petsLoading = ref(false)
+const accountsLoading = ref(false)
 
 const fetchStats = async () => {
   try {
@@ -50,6 +56,59 @@ const fetchRecentAccounts = async () => {
   }
 }
 
+const fetchPets = async () => {
+  petsLoading.value = true
+  try {
+    const response = await fetch('http://localhost:8000/api/pets', {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      pets.value = await response.json()
+      viewingPets.value = true
+    }
+  } catch (err) {
+    console.error('Error fetching pets:', err)
+  } finally {
+    petsLoading.value = false
+  }
+}
+
+const handlePetsClick = async () => {
+  viewingAccounts.value = false
+  viewingPets.value = true
+  await fetchPets()
+}
+
+const fetchAllAccounts = async () => {
+  accountsLoading.value = true
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8000/api/admin/recent-accounts?limit=1000', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      allAccounts.value = await response.json()
+    }
+  } catch (err) {
+    console.error('Error fetching all accounts:', err)
+  } finally {
+    accountsLoading.value = false
+  }
+}
+
+const handleAccountsClick = async () => {
+  viewingPets.value = false
+  viewingAccounts.value = true
+  await fetchAllAccounts()
+}
+
 onMounted(async () => {
   await Promise.all([fetchStats(), fetchRecentAccounts()])
   loading.value = false
@@ -75,14 +134,14 @@ onMounted(async () => {
 
     <div v-else class="admin-content">
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card clickable-card" @click="handleAccountsClick">
           <div class="stat-icon">👥</div>
           <div class="stat-info">
             <h3>Total Accounts</h3>
             <p class="stat-number">{{ stats.totalAccounts }}</p>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable-card" @click="handlePetsClick">
           <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Total Pets</h3>
@@ -99,10 +158,51 @@ onMounted(async () => {
       </div>
 
       <div class="admin-sections">
-        <div class="admin-section">
-          <h2>Recent Accounts</h2>
+        <div v-if="viewingPets" class="admin-section">
+          <div class="section-header">
+            <h2>Total Pets</h2>
+            <button class="close-btn" @click="viewingPets = false">✕</button>
+          </div>
           <div class="admin-table">
-            <table v-if="recentAccounts.length > 0">
+            <div v-if="petsLoading" class="loading-small">Loading pets...</div>
+            <table v-else-if="pets.length > 0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Breed</th>
+                  <th>Age</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Shelter</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="pet in pets" :key="pet.id">
+                  <td>{{ pet.name }}</td>
+                  <td>{{ pet.breed }}</td>
+                  <td>{{ pet.age }}</td>
+                  <td>{{ pet.location }}</td>
+                  <td>
+                    <span class="status-badge" :class="`status-${pet.status}`">
+                      {{ pet.status }}
+                    </span>
+                  </td>
+                  <td>{{ pet.shelter?.name || 'N/A' }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p v-else class="placeholder-text">No pets found</p>
+          </div>
+        </div>
+
+        <div v-if="viewingAccounts" class="admin-section">
+          <div class="section-header">
+            <h2>Total Accounts</h2>
+            <button class="close-btn" @click="viewingAccounts = false">✕</button>
+          </div>
+          <div class="admin-table">
+            <div v-if="accountsLoading" class="loading-small">Loading accounts...</div>
+            <table v-else-if="allAccounts.length > 0">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -112,7 +212,7 @@ onMounted(async () => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="account in recentAccounts" :key="account.id">
+                <tr v-for="account in allAccounts" :key="account.id">
                   <td>{{ account.name }}</td>
                   <td>{{ account.email }}</td>
                   <td>
@@ -186,6 +286,16 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.stat-card.clickable-card {
+  cursor: pointer;
+}
+
+.stat-card.clickable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: #fff8f8;
+}
+
 .stat-icon {
   font-size: 36px;
   width: 60px;
@@ -227,6 +337,31 @@ onMounted(async () => {
   margin: 0 0 16px;
   font-size: 20px;
   font-weight: 700;
+  color: #1f2937;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn:hover {
   color: #1f2937;
 }
 
@@ -284,6 +419,30 @@ onMounted(async () => {
   color: #991b1b;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-available {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-adopted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
 .error-banner {
   background: #fee;
   color: #c00;
@@ -303,6 +462,13 @@ onMounted(async () => {
   font-size: 14px;
   text-align: center;
   padding: 48px;
+}
+
+.loading-small {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {

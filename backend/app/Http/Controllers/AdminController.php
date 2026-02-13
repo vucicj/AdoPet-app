@@ -83,8 +83,10 @@ class AdminController extends Controller
 
     public function getRecentAccounts(): JsonResponse
     {
+        $limit = request()->query('limit', 5);
+        
         $accounts = User::orderBy('created_at', 'desc')
-            ->limit(5)
+            ->limit($limit)
             ->get()
             ->map(function ($user) {
                 return [
