@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   pets: {
@@ -217,6 +218,12 @@ const confirmDelete = async () => {
 onMounted(() => {
   fetchApplications()
 })
+
+const router = useRouter()
+
+const goAddPet = () => {
+  router.push({ name: 'AddPet' })
+}
 </script>
 
 <template>
@@ -230,7 +237,7 @@ onMounted(() => {
 
     <div class="shelter-content">
       <div class="action-bar">
-        <button class="primary-btn">+ Add New Pet</button>
+        <button class="primary-btn" @click="goAddPet">+ Add New Pet</button>
       </div>
 
       <div class="stats-grid">

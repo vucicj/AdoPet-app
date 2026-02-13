@@ -14,6 +14,7 @@ Route::middleware('api')
         
         Route::get('/pets', [PetController::class, 'index']);
         Route::get('/pets/{id}', [PetController::class, 'show']);
+        Route::post('/shelter/pets', [PetController::class, 'store']);
     });
 
 Route::middleware(['api', 'auth:sanctum'])

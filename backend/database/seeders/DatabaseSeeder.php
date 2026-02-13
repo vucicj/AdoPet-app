@@ -4,30 +4,26 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Marija',
+        // Ensure a general test user (idempotent)
+        User::firstOrCreate([
             'email' => 'marija@gmail.com',
-            'password' => Hash::make('password'),
+        ], [
+            'name' => 'Marija',
+            'password' => bcrypt('password'),
             'role' => 'user',
         ]);
 
-        User::create([
-            'name' => 'Ivana',
-            'email' => 'ivana@gmail.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-        ]);
-
-        User::create([
-            'name' => 'Jelena',
+        // Ensure a shelter user exists for seeded pets
+        User::firstOrCreate([
             'email' => 'jelena@gmail.com',
-            'password' => Hash::make('password'),
+        ], [
+            'name' => 'Jelena',
+            'password' => bcrypt('password'),
             'role' => 'shelter',
         ]);
 
