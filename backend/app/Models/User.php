@@ -48,6 +48,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Application::class);
     }
+
+    public function adoptedPets(): HasMany
+    {
+        return $this->hasMany(Pet::class, 'adopted_by_user_id');
+    }
     
     public function hasRole(string $role): bool
     {

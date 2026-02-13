@@ -11,13 +11,13 @@ class AdminController extends Controller
 {
     public function getStats(): JsonResponse
     {
-        $totalUsers = User::where('role', 'user')->count();
+        $totalAccounts = User::count();
         $totalShelters = User::where('role', 'shelter')->count();
         $totalPets = Pet::count();
         $totalAdoptions = Application::where('status', 'approved')->count();
 
         return response()->json([
-            'totalUsers' => $totalUsers,
+            'totalAccounts' => $totalAccounts,
             'totalShelters' => $totalShelters,
             'totalPets' => $totalPets,
             'totalAdoptions' => $totalAdoptions,
@@ -79,6 +79,24 @@ class AdminController extends Controller
             });
 
         return response()->json($users);
+    }
+
+    public function getRecentAccounts(): JsonResponse
+    {
+        $accounts = User::orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'created_at' => $user->created_at->format('M d, Y'),
+                ];
+            });
+
+        return response()->json($accounts);
     }
 }
 

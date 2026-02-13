@@ -1,21 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const props = defineProps({
-  pets: {
-    type: Array,
-    default: () => []
-  }
-})
-
 const stats = ref({
-  totalUsers: 0,
+  totalAccounts: 0,
   totalShelters: 0,
   totalPets: 0,
   totalAdoptions: 0
 })
-const recentUsers = ref([])
-const recentShelters = ref([])
+const recentAccounts = ref([])
 const loading = ref(true)
 const error = ref('')
 
@@ -40,10 +32,10 @@ const fetchStats = async () => {
   }
 }
 
-const fetchRecentUsers = async () => {
+const fetchRecentAccounts = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/recent-users', {
+    const response = await fetch('http://localhost:8000/api/admin/recent-accounts', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -51,33 +43,15 @@ const fetchRecentUsers = async () => {
     })
 
     if (response.ok) {
-      recentUsers.value = await response.json()
+      recentAccounts.value = await response.json()
     }
   } catch (err) {
-    console.error('Error fetching recent users:', err)
-  }
-}
-
-const fetchRecentShelters = async () => {
-  try {
-    const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/recent-shelters', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (response.ok) {
-      recentShelters.value = await response.json()
-    }
-  } catch (err) {
-    console.error('Error fetching recent shelters:', err)
+    console.error('Error fetching recent accounts:', err)
   }
 }
 
 onMounted(async () => {
-  await Promise.all([fetchStats(), fetchRecentUsers(), fetchRecentShelters()])
+  await Promise.all([fetchStats(), fetchRecentAccounts()])
   loading.value = false
 })
 </script>
@@ -104,15 +78,8 @@ onMounted(async () => {
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-info">
-            <h3>Total Users</h3>
-            <p class="stat-number">{{ stats.totalUsers }}</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🏠</div>
-          <div class="stat-info">
-            <h3>Shelters</h3>
-            <p class="stat-number">{{ stats.totalShelters }}</p>
+            <h3>Total Accounts</h3>
+            <p class="stat-number">{{ stats.totalAccounts }}</p>
           </div>
         </div>
         <div class="stat-card">
@@ -133,9 +100,9 @@ onMounted(async () => {
 
       <div class="admin-sections">
         <div class="admin-section">
-          <h2>Recent Users</h2>
+          <h2>Recent Accounts</h2>
           <div class="admin-table">
-            <table v-if="recentUsers.length > 0">
+            <table v-if="recentAccounts.length > 0">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -145,44 +112,19 @@ onMounted(async () => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="user in recentUsers" :key="user.id">
-                  <td>{{ user.name }}</td>
-                  <td>{{ user.email }}</td>
+                <tr v-for="account in recentAccounts" :key="account.id">
+                  <td>{{ account.name }}</td>
+                  <td>{{ account.email }}</td>
                   <td>
-                    <span class="role-badge" :class="`role-${user.role}`">
-                      {{ user.role.toUpperCase() }}
+                    <span class="role-badge" :class="`role-${account.role}`">
+                      {{ account.role.toUpperCase() }}
                     </span>
                   </td>
-                  <td>{{ user.created_at }}</td>
+                  <td>{{ account.created_at }}</td>
                 </tr>
               </tbody>
             </table>
-            <p v-else class="placeholder-text">No users found</p>
-          </div>
-        </div>
-        
-        <div class="admin-section">
-          <h2>Recent Shelters</h2>
-          <div class="admin-table">
-            <table v-if="recentShelters.length > 0">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Pets</th>
-                  <th>Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="shelter in recentShelters" :key="shelter.id">
-                  <td>{{ shelter.name }}</td>
-                  <td>{{ shelter.email }}</td>
-                  <td>{{ shelter.pets_count }}</td>
-                  <td>{{ shelter.created_at }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <p v-else class="placeholder-text">No shelters found</p>
+            <p v-else class="placeholder-text">No accounts found</p>
           </div>
         </div>
       </div>

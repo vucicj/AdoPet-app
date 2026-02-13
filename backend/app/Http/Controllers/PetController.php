@@ -17,6 +17,21 @@ class PetController extends Controller
         return response()->json(Pet::find($id));
     }
 
+    public function shelterPets()
+    {
+        $user = auth()->user();
+
+        if (!$user || $user->role !== 'shelter') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $pets = Pet::where('shelter_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($pets);
+    }
+
     public function store(Request $request)
     {
         try {

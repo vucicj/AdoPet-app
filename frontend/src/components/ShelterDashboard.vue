@@ -12,6 +12,8 @@ const props = defineProps({
 const emit = defineEmits(['refresh-pets'])
 
 const applications = ref([])
+const completedAdoptions = ref(0)
+const adoptedPets = ref([])
 const selectedApplication = ref(null)
 const showApplicationModal = ref(false)
 const showEditModal = ref(false)
@@ -32,25 +34,27 @@ const editForm = ref({
 
 const imageFile = ref(null)
 const imagePreview = ref(null)
+const petStatusFilter = ref('available')
 
 const pendingApplications = computed(() => 
   applications.value.filter(app => app.status === 'pending')
 )
 
-const approvedApplications = computed(() => 
-  applications.value.filter(app => app.status === 'approved')
-)
+
+const filteredPets = computed(() => {
+  if (!petStatusFilter.value) {
+    return props.pets
+  }
+
+  return props.pets.filter(pet => pet.status === petStatusFilter.value)
+})
 
 const activePets = computed(() =>
   props.pets.filter(pet => !adoptedPetIds.value.has(pet.id) && pet.status !== 'adopted')
 )
 
 const adoptedPetIds = computed(() => {
-  return new Set(
-    applications.value
-      .filter(app => app.status === 'approved')
-      .map(app => app.pet_id)
-  )
+  return new Set(adoptedPets.value.map(app => app.pet_id))
 })
 
 const visibleApplications = computed(() =>
@@ -60,7 +64,7 @@ const visibleApplications = computed(() =>
 const fetchApplications = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/shelter/applications', {
+    const response = await fetch('http://localhost:8000/api/shelter/dashboard', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -68,7 +72,10 @@ const fetchApplications = async () => {
     })
 
     if (response.ok) {
-      applications.value = await response.json()
+      const data = await response.json()
+      applications.value = data.applications || []
+      completedAdoptions.value = data.completed_adoptions || 0
+      adoptedPets.value = data.adopted_pets || []
     }
   } catch (error) {
     console.error('Failed to fetch applications:', error)
@@ -226,6 +233,10 @@ const router = useRouter()
 const goAddPet = () => {
   router.push({ name: 'AddPet' })
 }
+
+const getPetImage = (imageName) => {
+  return imageName ? `http://localhost:5173/src/assets/images/${imageName}` : ''
+}
 </script>
 
 <template>
@@ -247,7 +258,7 @@ const goAddPet = () => {
           <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Your Pets</h3>
-            <p class="stat-number">{{ activePets.length }}</p>
+            <p class="stat-number">{{ props.pets.length }}</p>
           </div>
         </div>
         <div class="stat-card">
@@ -260,8 +271,8 @@ const goAddPet = () => {
         <div class="stat-card">
           <div class="stat-icon">✅</div>
           <div class="stat-info">
-            <h3>Approved</h3>
-            <p class="stat-number">{{ approvedApplications.length }}</p>
+            <h3>Completed Adoptions</h3>
+            <p class="stat-number">{{ completedAdoptions }}</p>
           </div>
         </div>
       </div>
@@ -293,8 +304,38 @@ const goAddPet = () => {
 
         <div class="shelter-section">
           <h2>Your Pets</h2>
+          <div class="filter-row">
+            <button
+              class="filter-btn"
+              :class="{ active: petStatusFilter === 'available' }"
+              @click="petStatusFilter = 'available'"
+            >
+              Available
+            </button>
+            <button
+              class="filter-btn"
+              :class="{ active: petStatusFilter === 'pending' }"
+              @click="petStatusFilter = 'pending'"
+            >
+              Pending
+            </button>
+            <button
+              class="filter-btn"
+              :class="{ active: petStatusFilter === 'adopted' }"
+              @click="petStatusFilter = 'adopted'"
+            >
+              Adopted
+            </button>
+            <button
+              class="filter-btn"
+              :class="{ active: petStatusFilter === '' }"
+              @click="petStatusFilter = ''"
+            >
+              All
+            </button>
+          </div>
           <div class="pets-grid-small">
-            <div v-for="pet in activePets" :key="pet.id" class="pet-card-small">
+            <div v-for="pet in filteredPets" :key="pet.id" class="pet-card-small">
               <img :src="pet.imageUrl || pet.image" :alt="pet.name" />
               <div class="pet-card-info">
                 <h4>{{ pet.name }}</h4>
@@ -303,6 +344,26 @@ const goAddPet = () => {
                   <button class="btn-edit" @click="openEditModal(pet)">Edit</button>
                   <button class="btn-delete" @click="openDeleteModal(pet)">Delete</button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="shelter-section">
+          <h2>Adopted Pets</h2>
+          <div v-if="adoptedPets.length === 0" class="empty-state">
+            No adoptions yet
+          </div>
+          <div v-else class="applications-list">
+            <div v-for="app in adoptedPets" :key="app.application_id" class="application-item">
+              <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
+              <div class="app-info">
+                <h3>{{ app.pet_name }}</h3>
+                <p>Adopted by <strong>{{ app.adopted_by }}</strong></p>
+                <p class="app-date">Adopted on {{ app.adopted_at }}</p>
+              </div>
+              <div class="app-status">
+                <span class="status-badge status-approved">approved</span>
               </div>
             </div>
           </div>
@@ -602,6 +663,35 @@ const goAddPet = () => {
   font-size: 20px;
   font-weight: 700;
   color: #1f2937;
+}
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #eef2f7;
+}
+
+.filter-btn.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
 }
 
 .pets-grid-small {

@@ -53,12 +53,25 @@ const normalizeImageName = (imageValue) => {
   return imageValue
 }
 
-const fetchPets = async () => {
+const fetchPets = async (role) => {
   try {
-    const response = await fetch('http://localhost:8000/api/pets')
+    const token = localStorage.getItem('token')
+    const isShelter = role === 'shelter'
+    const response = await fetch(
+      isShelter ? 'http://localhost:8000/api/shelter/dashboard' : 'http://localhost:8000/api/pets',
+      {
+        headers: isShelter
+          ? {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          : undefined
+      }
+    )
     const data = await response.json()
+    const petList = isShelter ? data.pets : data
 
-    pets.value = data.map(pet => {
+    pets.value = petList.map(pet => {
       const imageName = normalizeImageName(pet.image)
       return {
         ...pet,
@@ -104,7 +117,7 @@ onMounted(async () => {
     }
   }
 
-  await fetchPets()
+  await fetchPets(user.value?.role)
 })
 
 const handleLogout = () => {
