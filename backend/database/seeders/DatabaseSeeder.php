@@ -27,6 +27,15 @@ class DatabaseSeeder extends Seeder
             'role' => 'shelter',
         ]);
 
+        // Ensure an admin user exists
+        User::firstOrCreate([
+            'email' => 'ivana@gmail.com',
+        ], [
+            'name' => 'Ivana',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
         $this->call([
             PetSeeder::class,
         ]);
