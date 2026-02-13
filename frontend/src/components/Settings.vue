@@ -96,7 +96,6 @@ const savePassword = async () => {
       <div class="settings-card">
         <div class="header">
           <h1>Settings</h1>
-          <button class="close-btn" @click="goBack">✕</button>
         </div>
 
         <h2>Change Password</h2>

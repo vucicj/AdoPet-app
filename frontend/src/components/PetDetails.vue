@@ -47,10 +47,6 @@ onMounted(async () => {
 
 <template>
   <div class="pet-details-page">
-    <div class="top-bar">
-      <button class="close-btn" @click="closePage">✕</button>
-    </div>
-
     <div v-if="loading" class="loading">Loading pet details...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 

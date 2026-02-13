@@ -53,7 +53,7 @@ const normalizeImageName = (imageValue) => {
   return imageValue
 }
 
-const fetchPets = async (role) => {
+const fetchPets = async (role, isInitialLoad = false) => {
   try {
     const token = localStorage.getItem('token')
     const isShelter = role === 'shelter'
@@ -83,41 +83,39 @@ const fetchPets = async (role) => {
     console.error('Failed to fetch pets:', error)
     pets.value = []
   } finally {
-    loading.value = false
+    if (isInitialLoad) {
+      loading.value = false
+    }
   }
 }
 
 onMounted(async () => {
   try {
+    loading.value = true
     const token = localStorage.getItem('token')
-    if (token) {
-      const response = await fetch('http://localhost:8000/api/user', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        const freshUser = await response.json()
-        user.value = freshUser
-        localStorage.setItem('user', JSON.stringify(freshUser))
-      } else {
-        const userData = localStorage.getItem('user')
-        if (userData) {
-          user.value = JSON.parse(userData)
-        }
+    
+    // Fetch fresh user data from API - always get current user
+    const response = await fetch('http://localhost:8000/api/user', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    })
+    
+    if (response.ok) {
+      const freshUser = await response.json()
+      user.value = freshUser
+      localStorage.setItem('user', JSON.stringify(freshUser))
+      
+      // Now fetch pets with the correct role (with isInitialLoad = true to manage loading state)
+      await fetchPets(freshUser.role, true)
+    } else {
+      loading.value = false
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      user.value = JSON.parse(userData)
-    }
+    loading.value = false
   }
-
-  await fetchPets(user.value?.role)
 })
 
 const handleLogout = () => {
@@ -126,15 +124,26 @@ const handleLogout = () => {
   router.push('/')
 }
 
+const handleRefreshPets = () => {
+  if (user.value?.role) {
+    fetchPets(user.value.role, false)
+  }
+}
+
 </script>
 
 <template>
   <div class="dashboard">
     <DashboardHeader :user="user" />
     
-    <UserDashboard v-if="!user?.role || user?.role === 'user'" :pets="pets" />
-    <ShelterDashboard v-else-if="user?.role === 'shelter'" :pets="pets" @refresh-pets="fetchPets" />
-    <AdminDashboard v-else-if="user?.role === 'admin'" :pets="pets" />
+    <div v-if="loading" class="loading-container">
+      <p>Loading dashboard...</p>
+    </div>
+    <div v-else>
+      <UserDashboard v-if="!user?.role || user?.role === 'user'" :pets="pets" />
+      <ShelterDashboard v-else-if="user?.role === 'shelter'" :pets="pets" @refresh-pets="handleRefreshPets" />
+      <AdminDashboard v-else-if="user?.role === 'admin'" :pets="pets" />
+    </div>
   </div>
 </template>
 
@@ -142,5 +151,14 @@ const handleLogout = () => {
 .dashboard {
   min-height: 100vh;
   background: #f9fafb;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #6b7280;
+  font-size: 16px;
 }
 </style>

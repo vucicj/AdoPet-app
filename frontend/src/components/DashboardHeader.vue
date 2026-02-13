@@ -13,10 +13,6 @@ const router = useRouter()
 const goToProfile = () => {
   router.push('/profile')
 }
-
-const goToShelterApplication = () => {
-  router.push('/shelter-application')
-}
 </script>
 
 <template>
@@ -28,13 +24,6 @@ const goToShelterApplication = () => {
       </div>
       
       <div class="user-section">
-        <button
-          v-if="!user?.role || user?.role === 'user'"
-          class="shelter-apply-btn"
-          @click="goToShelterApplication"
-        >
-          Apply as Shelter
-        </button>
         <span class="user-name" v-if="user" @click="goToProfile" style="cursor: pointer;">{{ user.name }}</span>
       </div>
     </div>
@@ -81,22 +70,6 @@ const goToShelterApplication = () => {
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.shelter-apply-btn {
-  padding: 8px 14px;
-  background: #10b981;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.shelter-apply-btn:hover {
-  background: #059669;
 }
 
 @media (max-width: 768px) {

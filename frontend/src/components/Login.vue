@@ -52,7 +52,15 @@ const handleLogin = async () => {
       })
     })
 
-    const data = await response.json()
+    let data
+    try {
+      data = await response.json()
+    } catch (parseError) {
+      const text = await response.text()
+      console.error('Response parse error. Raw response:', text)
+      errorMessage.value = 'Server error - invalid response format'
+      return
+    }
 
     if (!response.ok) {
       errorMessage.value = data.message || 'Login failed'

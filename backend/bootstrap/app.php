@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'guest' => \App\Http\Middleware\EnsureGuest::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'cors' => \App\Http\Middleware\Cors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (AuthenticationException $e, Request $request) {
@@ -24,3 +29,4 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
     })->create();
+

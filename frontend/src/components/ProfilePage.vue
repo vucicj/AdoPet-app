@@ -62,10 +62,23 @@ const closePage = () => {
   router.push('/dashboard')
 }
 
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-  router.push('/')
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    await fetch('http://localhost:8000/api/logout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+  } catch (error) {
+    console.error('Logout error:', error)
+  } finally {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    router.push('/')
+  }
 }
 
 const withdrawApplication = async (id) => {
@@ -181,7 +194,6 @@ onMounted(async () => {
 
     <div v-else>
       <section class="profile-header">
-        <button class="close-btn" @click="closePage">✕</button>
         <div class="profile-card">
           <div class="profile-avatar">
             <img :src="user.avatar" :alt="user.name" />

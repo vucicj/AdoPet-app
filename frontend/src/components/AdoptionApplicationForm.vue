@@ -162,7 +162,6 @@ onMounted(async () => {
         <!-- Header -->
         <div class="header">
           <h1>Adoption Application</h1>
-          <button class="close-btn" @click="closePage">✕</button>
         </div>
         <p class="subtitle" v-if="pet">Help us find the perfect match for {{ pet.name }}</p>
 

@@ -94,7 +94,6 @@ onMounted(() => {
       <div class="edit-profile-card">
         <div class="header">
           <h1>Edit Profile</h1>
-          <button class="close-btn" @click="goBack">✕</button>
         </div>
 
         <div v-if="error" class="alert alert-error">{{ error }}</div>
