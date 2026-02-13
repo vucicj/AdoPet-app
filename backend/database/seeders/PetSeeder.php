@@ -10,7 +10,7 @@ class PetSeeder extends Seeder
 {
     public function run(): void
     {
-        $shelterId = 2;
+        $shelterId = 3;
 
         Pet::create([
             'name' => 'Max',

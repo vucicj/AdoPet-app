@@ -29,6 +29,9 @@ Route::middleware(['api', 'auth:sanctum'])
         Route::get('/shelter/applications', [ApplicationController::class, 'shelterApplications']);
         Route::put('/shelter/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
 
+        Route::put('/pets/{id}', [PetController::class, 'update']);
+        Route::delete('/pets/{id}', [PetController::class, 'destroy']);
+
         Route::get('/admin/stats', [AdminController::class, 'getStats']);
         Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
         Route::get('/admin/recent-users', [AdminController::class, 'getRecentUsers']);

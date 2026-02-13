@@ -13,6 +13,24 @@ const emit = defineEmits(['refresh-pets'])
 const applications = ref([])
 const selectedApplication = ref(null)
 const showApplicationModal = ref(false)
+const showEditModal = ref(false)
+const showDeleteModal = ref(false)
+const selectedPet = ref(null)
+const petToDelete = ref(null)
+
+const editForm = ref({
+  name: '',
+  breed: '',
+  age: '',
+  gender: '',
+  location: '',
+  distance: '',
+  image: '',
+  status: 'available'
+})
+
+const imageFile = ref(null)
+const imagePreview = ref(null)
 
 const pendingApplications = computed(() => 
   applications.value.filter(app => app.status === 'pending')
@@ -85,6 +103,114 @@ const updateApplicationStatus = async (applicationId, status) => {
     }
   } catch (error) {
     console.error('Failed to update status:', error)
+  }
+}
+
+const openEditModal = (pet) => {
+  selectedPet.value = pet
+  editForm.value = {
+    name: pet.name,
+    breed: pet.breed,
+    age: pet.age,
+    gender: pet.gender || '',
+    location: pet.location || '',
+    distance: pet.distance || '',
+    image: pet.image || '',
+    status: pet.status
+  }
+  imageFile.value = null
+  imagePreview.value = pet.image ? `http://localhost:5173/src/assets/images/${pet.image}` : null
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  selectedPet.value = null
+  imageFile.value = null
+  imagePreview.value = null
+}
+
+const handleImageSelect = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    imageFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+    editForm.value.image = file.name
+  }
+}
+
+const updatePet = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    
+    const petData = {
+      name: editForm.value.name,
+      breed: editForm.value.breed,
+      age: editForm.value.age,
+      gender: editForm.value.gender,
+      location: editForm.value.location,
+      distance: editForm.value.distance,
+      status: editForm.value.status,
+      image: editForm.value.image
+    }
+    
+    const response = await fetch(`http://localhost:8000/api/pets/${selectedPet.value.id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(petData)
+    })
+
+    if (response.ok) {
+      emit('refresh-pets')
+      closeEditModal()
+    } else {
+      const error = await response.json()
+      console.error('Update error:', error)
+      alert(`Failed to update pet: ${error.message || JSON.stringify(error)}`)
+    }
+  } catch (error) {
+    console.error('Failed to update pet:', error)
+    alert('Failed to update pet: ' + error.message)
+  }
+}
+
+const openDeleteModal = (pet) => {
+  petToDelete.value = pet
+  showDeleteModal.value = true
+}
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  petToDelete.value = null
+}
+
+const confirmDelete = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:8000/api/pets/${petToDelete.value.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      emit('refresh-pets')
+      closeDeleteModal()
+    } else {
+      alert('Failed to delete pet')
+    }
+  } catch (error) {
+    console.error('Failed to delete pet:', error)
+    alert('Failed to delete pet')
   }
 }
 
@@ -165,8 +291,8 @@ onMounted(() => {
                 <h4>{{ pet.name }}</h4>
                 <p>{{ pet.breed }}</p>
                 <div class="pet-actions">
-                  <button class="btn-edit">Edit</button>
-                  <button class="btn-delete">Delete</button>
+                  <button class="btn-edit" @click="openEditModal(pet)">Edit</button>
+                  <button class="btn-delete" @click="openDeleteModal(pet)">Delete</button>
                 </div>
               </div>
             </div>
@@ -240,6 +366,110 @@ onMounted(() => {
             <button class="btn btn-success" @click="updateApplicationStatus(selectedApplication.id, 'approved')">
               Approve
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Pet Modal -->
+    <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>Edit Pet</h2>
+          <button class="close-btn" @click="closeEditModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <form @submit.prevent="updatePet" class="edit-form">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" v-model="editForm.name" required class="form-input">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Breed</label>
+                <input type="text" v-model="editForm.breed" required class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label>Age</label>
+                <input type="text" v-model="editForm.age" required class="form-input" placeholder="e.g., 2 years">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Gender</label>
+                <select v-model="editForm.gender" required class="form-input">
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select v-model="editForm.status" class="form-input">
+                  <option value="available">Available</option>
+                  <option value="pending">Pending</option>
+                  <option value="adopted">Adopted</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" v-model="editForm.location" required class="form-input" placeholder="e.g., Austin">
+              </div>
+
+              <div class="form-group">
+                <label>Distance</label>
+                <input type="text" v-model="editForm.distance" required class="form-input" placeholder="e.g., 5 miles">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Upload Picture</label>
+              <input 
+                type="file" 
+                @change="handleImageSelect" 
+                accept="image/*" 
+                class="form-input file-input"
+              >
+              <p class="helper-text">Choose an image file for the pet</p>
+              <div v-if="imagePreview" class="image-preview-container">
+                <img :src="imagePreview" alt="Preview" class="image-preview">
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn btn-secondary" @click="closeEditModal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+      <div class="modal-content modal-small" @click.stop>
+        <div class="modal-header">
+          <h2>Confirm Delete</h2>
+          <button class="close-btn" @click="closeDeleteModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="delete-message">
+            Are you sure you want to delete <strong>{{ petToDelete?.name }}</strong>? 
+            This action cannot be undone.
+          </p>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" @click="closeDeleteModal">Cancel</button>
+            <button type="button" class="btn btn-danger" @click="confirmDelete">Delete</button>
           </div>
         </div>
       </div>
@@ -684,6 +914,121 @@ onMounted(() => {
   background: #dc2626;
 }
 
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.helper-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: -0.25rem 0 0 0;
+}
+
+.form-input {
+  padding: 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.form-input {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.file-input {
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.file-input::file-selector-button {
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.file-input::file-selector-button:hover {
+  background: #2563eb;
+}
+
+.image-preview-container {
+  margin-top: 1rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  background: #f9fafb;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+}
+
+.modal-small {
+  max-width: 400px;
+}
+
+.delete-message {
+  font-size: 0.9375rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 32px;
@@ -696,6 +1041,10 @@ onMounted(() => {
   
   .view-btn {
     width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 </style>
