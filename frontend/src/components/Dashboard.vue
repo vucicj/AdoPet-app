@@ -37,7 +37,6 @@ const fetchPets = async () => {
 }
 
 onMounted(async () => {
-  // Fetch fresh user data from the API
   try {
     const token = localStorage.getItem('token')
     if (token) {
@@ -53,7 +52,6 @@ onMounted(async () => {
         user.value = freshUser
         localStorage.setItem('user', JSON.stringify(freshUser))
       } else {
-        // Token invalid, use cached data
         const userData = localStorage.getItem('user')
         if (userData) {
           user.value = JSON.parse(userData)
@@ -62,7 +60,6 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
-    // Fallback to cached data
     const userData = localStorage.getItem('user')
     if (userData) {
       user.value = JSON.parse(userData)

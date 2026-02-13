@@ -112,7 +112,6 @@ onMounted(async () => {
       return
     }
 
-    // Fetch fresh user data from the API
     const userResponse = await fetch('http://localhost:8000/api/user', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -130,7 +129,6 @@ onMounted(async () => {
       router.push('/')
       return
     } else {
-      // Fallback to cached data
       const userData = localStorage.getItem('user')
       if (userData) {
         const parsedUser = JSON.parse(userData)
@@ -142,7 +140,6 @@ onMounted(async () => {
 
     const userRole = user.value.role
 
-    // Only fetch applications for non-shelter users
     if (userRole !== 'shelter') {
       const response = await fetch('http://localhost:8000/api/applications', {
         headers: {
@@ -174,19 +171,15 @@ onMounted(async () => {
 
 <template>
   <div class="profile-page">
-    <!-- Error Message -->
     <div v-if="error" class="error-banner">
       {{ error }}
     </div>
 
-    <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <p>Loading profile...</p>
     </div>
 
-    <!-- Profile Content -->
     <div v-else>
-      <!-- Header Section -->
       <section class="profile-header">
         <button class="close-btn" @click="closePage">✕</button>
         <div class="profile-card">
@@ -207,7 +200,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Quick Stats -->
         <div class="quick-stats">
           <div class="stat-item">
             <div class="stat-icon applications-icon">📋</div>
@@ -226,7 +218,6 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- Applications Section - only for non-shelter users -->
       <section class="applications-section" v-if="!isUserAShelter">
         <h2 class="section-title">My Applications</h2>
         
@@ -276,7 +267,6 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- Contact Shelter Modal -->
       <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
         <div class="modal-content" @click.stop>
           <button class="modal-close" @click="closeContactModal">✕</button>
@@ -331,7 +321,6 @@ onMounted(async () => {
   color: #6b7280;
 }
 
-/* Header Section */
 .profile-header {
   background: white;
   border-radius: 12px;
@@ -483,7 +472,6 @@ onMounted(async () => {
   background: #dc2626;
 }
 
-/* Quick Stats */
 .quick-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -537,7 +525,6 @@ onMounted(async () => {
   margin-top: 0.25rem;
 }
 
-/* Applications Section */
 .applications-section {
   background: white;
   border-radius: 12px;
@@ -650,7 +637,6 @@ onMounted(async () => {
   padding: 0.625rem 1rem;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;

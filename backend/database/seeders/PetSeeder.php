@@ -10,7 +10,6 @@ class PetSeeder extends Seeder
 {
     public function run(): void
     {
-        // Shelter user has ID 2
         $shelterId = 2;
 
         Pet::create([
