@@ -38,7 +38,7 @@ onMounted(async () => {
 
   try {
     const { petId } = route.params
-    const response = await fetch(`http://localhost:8000/api/pets/${petId}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${petId}`)
 
     if (!response.ok) {
       error.value = 'Failed to load pet details'

@@ -37,7 +37,7 @@ const fetchPets = async (role, isInitialLoad = false) => {
     const token = localStorage.getItem('token')
     const isShelter = role === 'shelter'
     const response = await fetch(
-      isShelter ? 'http://localhost:8000/api/shelter/dashboard' : 'http://localhost:8000/api/pets',
+      isShelter ? `${import.meta.env.VITE_API_URL}/api/shelter/dashboard` : `${import.meta.env.VITE_API_URL}/api/pets`,
       {
         headers: isShelter
           ? {
@@ -73,7 +73,7 @@ onMounted(async () => {
     const token = localStorage.getItem('token')
     
     // Fetch fresh user data from API - always get current user
-    const response = await fetch('http://localhost:8000/api/user', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

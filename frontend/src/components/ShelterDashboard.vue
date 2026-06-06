@@ -49,7 +49,7 @@ const handleEditImageSelect = async (event) => {
     const formData = new FormData()
     formData.append('image', file)
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/upload', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData
@@ -94,7 +94,7 @@ const visibleApplications = computed(() =>
 const fetchApplications = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/shelter/dashboard', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shelter/dashboard`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -125,7 +125,7 @@ const closeModal = () => {
 const updateApplicationStatus = async (applicationId, status) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/shelter/applications/${applicationId}/status`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shelter/applications/${applicationId}/status`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -187,7 +187,7 @@ const updatePet = async () => {
       image: editForm.value.image
     }
     
-    const response = await fetch(`http://localhost:8000/api/pets/${selectedPet.value.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${selectedPet.value.id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -223,7 +223,7 @@ const closeDeleteModal = () => {
 const confirmDelete = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/pets/${petToDelete.value.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${petToDelete.value.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

@@ -81,7 +81,7 @@ const router = createRouter({
 // Helper function to verify token with backend
 async function verifyToken(token) {
   try {
-    const response = await fetch('http://localhost:8000/api/user', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

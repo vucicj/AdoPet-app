@@ -65,7 +65,7 @@ const savePassword = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/user/password', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/password`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,

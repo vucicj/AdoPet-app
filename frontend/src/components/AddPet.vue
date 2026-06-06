@@ -43,7 +43,7 @@ const handleImageSelect = async (event) => {
     formData.append('image', file)
     const token = localStorage.getItem('token')
 
-    const response = await fetch('http://localhost:8000/api/upload', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData
@@ -71,7 +71,7 @@ const submitPet = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/pets', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

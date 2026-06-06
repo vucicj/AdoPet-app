@@ -96,7 +96,7 @@ const submitApplication = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/applications', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/applications`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -144,7 +144,7 @@ onMounted(async () => {
   }
 
   try {
-    const response = await fetch(`http://localhost:8000/api/pets/${petId}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${petId}`)
     if (response.ok) {
       pet.value = await response.json()
     } else {

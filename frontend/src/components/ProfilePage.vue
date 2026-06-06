@@ -66,7 +66,7 @@ const closePage = () => {
 const handleLogout = async () => {
   try {
     const token = localStorage.getItem('token')
-    await fetch('http://localhost:8000/api/logout', {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -85,7 +85,7 @@ const handleLogout = async () => {
 const withdrawApplication = async (id) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/applications/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/applications/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -126,7 +126,7 @@ onMounted(async () => {
       return
     }
 
-    const userResponse = await fetch('http://localhost:8000/api/user', {
+    const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -155,7 +155,7 @@ onMounted(async () => {
     const userRole = user.value.role
 
     if (userRole !== 'shelter') {
-      const response = await fetch('http://localhost:8000/api/applications', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

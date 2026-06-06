@@ -29,7 +29,7 @@ const shelterFormLoading = ref(false)
 const fetchStats = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/stats', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/stats`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -50,7 +50,7 @@ const fetchStats = async () => {
 const fetchRecentAccounts = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/recent-accounts', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/recent-accounts`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -69,7 +69,7 @@ const fetchPets = async () => {
   petsLoading.value = true
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/pets', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/pets`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ const fetchAllAccounts = async () => {
   accountsLoading.value = true
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/users', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -125,7 +125,7 @@ const fetchAdoptions = async () => {
   adoptionsLoading.value = true
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/adoptions', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/adoptions`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     })
     if (response.ok) {
@@ -153,7 +153,7 @@ const createShelter = async () => {
   shelterFormLoading.value = true
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/admin/shelters', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/shelters`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(shelterForm.value)
@@ -194,7 +194,7 @@ const deleteUser = async () => {
   if (!userToDelete.value) return
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/admin/users/${userToDelete.value.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userToDelete.value.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
