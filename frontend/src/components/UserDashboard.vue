@@ -20,13 +20,45 @@ const filters = ref({
 const userApplications = ref([])
 
 const availablePets = computed(() => {
-  // Filter out pets that have approved applications
-  return props.pets.filter(pet => {
+  let result = props.pets.filter(pet => {
     const hasApprovedApplication = userApplications.value.some(
       app => app.pet_id === pet.id && app.status === 'approved'
     )
     return !hasApprovedApplication
   })
+
+  if (filters.value.petType.length > 0) {
+    result = result.filter(pet => {
+      const species = (pet.species || '').toLowerCase()
+      return filters.value.petType.some(type => species === type.slice(0, -1))
+    })
+  }
+
+  if (filters.value.age) {
+    result = result.filter(pet => {
+      const ageStr = (pet.age || '').toLowerCase()
+      switch (filters.value.age) {
+        case 'puppy':
+          return ageStr.includes('month') || ageStr.includes('puppy') || ageStr.includes('kitten') || ageStr.includes('baby')
+        case 'young':
+          return (ageStr.includes('1 year') || ageStr.includes('2 year')) && !ageStr.includes('12') && !ageStr.includes('month')
+        case 'adult':
+          return ageStr.includes('3 year') || ageStr.includes('4 year') || ageStr.includes('5 year') || ageStr.includes('6 year') || ageStr.includes('7 year')
+        case 'senior':
+          return ageStr.includes('8 year') || ageStr.includes('9 year') || ageStr.includes('10 year') || ageStr.includes('senior') || ageStr.includes('old')
+        default:
+          return true
+      }
+    })
+  }
+
+  if (filters.value.location) {
+    result = result.filter(pet =>
+      (pet.location || '').toLowerCase().includes(filters.value.location.toLowerCase())
+    )
+  }
+
+  return result
 })
 
 const clearFilters = () => {
@@ -37,6 +69,10 @@ const clearFilters = () => {
     location: ''
   }
 }
+
+const hasActiveFilters = computed(() =>
+  filters.value.petType.length > 0 || filters.value.age || filters.value.location
+)
 
 const applyForPet = (petId) => {
   router.push(`/apply/${petId}`)
@@ -110,22 +146,37 @@ onMounted(async () => {
           </label>
           <label class="radio-label">
             <input type="radio" name="age" value="young" v-model="filters.age" />
-            <span>Young</span>
+            <span>Young (1-2 yrs)</span>
           </label>
           <label class="radio-label">
             <input type="radio" name="age" value="adult" v-model="filters.age" />
-            <span>Adult</span>
+            <span>Adult (3-7 yrs)</span>
           </label>
           <label class="radio-label">
             <input type="radio" name="age" value="senior" v-model="filters.age" />
-            <span>Senior</span>
+            <span>Senior (8+ yrs)</span>
           </label>
+          <label class="radio-label" v-if="filters.age">
+            <input type="radio" name="age" value="" v-model="filters.age" />
+            <span>Any age</span>
+          </label>
+        </div>
+
+        <div class="filter-section">
+          <h4>Location</h4>
+          <input
+            type="text"
+            v-model="filters.location"
+            placeholder="Search by city..."
+            class="location-input"
+          />
         </div>
       </aside>
 
       <main class="pets-content">
         <div class="pets-header">
           <h2>Showing {{ availablePets.length }} pets</h2>
+          <button v-if="hasActiveFilters" class="clear-all" @click="clearFilters">Clear filters</button>
         </div>
 
         <div class="pets-grid">
@@ -143,8 +194,6 @@ onMounted(async () => {
               </p>
               <p class="pet-details">
                 <span class="detail-item">📍 {{ pet.location }}</span>
-                <span class="separator">•</span>
-                <span class="detail-item">{{ pet.distance }}</span>
               </p>
               <div class="pet-actions">
                 <button class="details-btn" @click="viewDetails(pet.id)">Details</button>
@@ -367,6 +416,22 @@ onMounted(async () => {
 
 .adopt-btn:hover {
   background: #7c3aed;
+}
+
+.location-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  box-sizing: border-box;
+}
+
+.location-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 @media (max-width: 1024px) {

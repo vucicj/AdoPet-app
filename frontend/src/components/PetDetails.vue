@@ -8,8 +8,13 @@ const router = useRouter()
 const pet = ref(null)
 const loading = ref(true)
 const error = ref('')
+const userRole = ref('')
 
 const getImagePath = (imageName) => {
+  if (!imageName) return null
+  if (imageName.startsWith('http://') || imageName.startsWith('https://') || imageName.startsWith('data:') || imageName.startsWith('/')) {
+    return imageName
+  }
   try {
     return new URL(`../assets/images/${imageName}`, import.meta.url).href
   } catch {
@@ -17,11 +22,20 @@ const getImagePath = (imageName) => {
   }
 }
 
-const closePage = () => {
+const goBack = () => {
   router.push('/dashboard')
 }
 
+const adoptPet = () => {
+  router.push(`/apply/${pet.value.id}`)
+}
+
 onMounted(async () => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    userRole.value = JSON.parse(userData).role || 'user'
+  }
+
   try {
     const { petId } = route.params
     const response = await fetch(`http://localhost:8000/api/pets/${petId}`)
@@ -47,6 +61,10 @@ onMounted(async () => {
 
 <template>
   <div class="pet-details-page">
+    <div class="top-bar">
+      <button class="back-btn" @click="goBack">← Back to Dashboard</button>
+    </div>
+
     <div v-if="loading" class="loading">Loading pet details...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
@@ -54,6 +72,9 @@ onMounted(async () => {
       <div class="gallery">
         <div class="main-image">
           <img :src="pet.image" :alt="pet.name" />
+        </div>
+        <div class="status-row">
+          <span class="status-badge" :class="`status-${pet.status}`">{{ pet.status }}</span>
         </div>
       </div>
 
@@ -71,41 +92,44 @@ onMounted(async () => {
             <div class="stat-value">{{ pet.age }}</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Weight</div>
-            <div class="stat-value">28 kg</div>
-          </div>
-          <div class="stat-card">
             <div class="stat-label">Gender</div>
             <div class="stat-value">{{ pet.gender }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Location</div>
+            <div class="stat-value">{{ pet.location }}</div>
           </div>
         </div>
 
         <div class="section-card">
           <h3>About {{ pet.name }}</h3>
           <p>
-            {{ pet.name }} is a friendly and energetic {{ pet.breed }} who loves company and long walks.
-            This pet is ready to join a loving family and enjoy a happy, healthy life.
+            {{ pet.name }} is a wonderful {{ pet.species || pet.breed }} looking for a loving forever home.
+            Currently available for adoption at a shelter near {{ pet.location }}.
           </p>
-          <div class="tag-row">
-            <span class="tag">Good with kids</span>
-            <span class="tag">House trained</span>
-            <span class="tag">Vaccinated</span>
-            <span class="tag">Neutered</span>
-          </div>
         </div>
 
-        <div class="section-card">
-          <h3>Health & Care</h3>
-          <ul class="health-list">
-            <li>Vaccinations up to date</li>
-            <li>Spayed/Neutered</li>
-            <li>Microchipped</li>
-          </ul>
+        <div class="shelter-card" v-if="pet.shelter">
+          <div class="shelter-title">{{ pet.shelter.name }}</div>
+          <div class="shelter-location">📍 {{ pet.location }}</div>
+        </div>
+        <div class="shelter-card" v-else>
+          <div class="shelter-title">Local Shelter</div>
+          <div class="shelter-location">📍 {{ pet.location }}</div>
         </div>
 
-        <div class="shelter-card">
-          <div class="shelter-title">Happy Paws Shelter</div>
-          <div class="shelter-location">{{ pet.location }}</div>
+        <button
+          v-if="pet.status === 'available' && (userRole === 'user' || userRole === 'admin')"
+          class="adopt-btn"
+          @click="adoptPet"
+        >
+          Adopt {{ pet.name }}
+        </button>
+        <div v-else-if="pet.status === 'pending'" class="status-notice pending-notice">
+          This pet has a pending adoption application.
+        </div>
+        <div v-else-if="pet.status === 'adopted'" class="status-notice adopted-notice">
+          This pet has already been adopted.
         </div>
       </div>
     </div>
@@ -123,28 +147,95 @@ onMounted(async () => {
   max-width: 1200px;
   margin: 0 auto 1.5rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
-.close-btn {
+.back-btn {
   background: white;
   border: 1px solid #e5e7eb;
   color: #6b7280;
-  font-size: 1.25rem;
-  width: 40px;
-  height: 40px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
   border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
   transition: all 0.2s;
 }
 
-.close-btn:hover {
-  color: #111827;
-  border-color: #d1d5db;
+.back-btn:hover {
+  color: #7c3aed;
+  border-color: #7c3aed;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.status-row {
+  margin-top: 0.75rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-available {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-adopted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.adopt-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.adopt-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+.status-notice {
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.pending-notice {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.adopted-notice {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }
 
 .details-grid {

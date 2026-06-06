@@ -32,27 +32,6 @@ const getImagePath = (imageName) => {
   }
 }
 
-const normalizeImageName = (imageValue) => {
-  if (!imageValue) {
-    return ''
-  }
-
-  try {
-    if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) {
-      const url = new URL(imageValue)
-      return url.pathname.split('/').pop() || ''
-    }
-  } catch {
-    // Fall through to simple parsing
-  }
-
-  if (imageValue.includes('/')) {
-    return imageValue.split('/').pop() || imageValue
-  }
-
-  return imageValue
-}
-
 const fetchPets = async (role, isInitialLoad = false) => {
   try {
     const token = localStorage.getItem('token')
@@ -72,11 +51,10 @@ const fetchPets = async (role, isInitialLoad = false) => {
     const petList = isShelter ? data.pets : data
 
     pets.value = petList.map(pet => {
-      const imageName = normalizeImageName(pet.image)
+      const imageUrl = getImagePath(pet.image)
       return {
         ...pet,
-        image: imageName,
-        imageUrl: getImagePath(imageName) || getImagePath(pet.image)
+        imageUrl
       }
     })
   } catch (error) {

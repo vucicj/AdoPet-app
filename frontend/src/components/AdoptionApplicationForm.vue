@@ -10,6 +10,18 @@ const loading = ref(true)
 const error = ref('')
 const success = ref('')
 
+const getImagePath = (imageName) => {
+  if (!imageName) return null
+  if (imageName.startsWith('http://') || imageName.startsWith('https://') || imageName.startsWith('data:') || imageName.startsWith('/')) {
+    return imageName
+  }
+  try {
+    return new URL(`../assets/images/${imageName}`, import.meta.url).href
+  } catch {
+    return null
+  }
+}
+
 const formData = ref({
   fullName: '',
   email: '',
@@ -180,7 +192,7 @@ onMounted(async () => {
 
         <!-- Pet Info -->
         <div v-if="pet" class="pet-info">
-          <img :src="pet.image" :alt="pet.name" class="pet-avatar" />
+          <img :src="getImagePath(pet.image)" :alt="pet.name" class="pet-avatar" />
           <div class="pet-details">
             <h3>{{ pet.name }}</h3>
             <p>{{ pet.breed }} • {{ pet.age }}</p>

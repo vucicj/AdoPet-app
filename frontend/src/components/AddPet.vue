@@ -1,59 +1,92 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DashboardHeader from './DashboardHeader.vue'
 
 const router = useRouter()
+const headerUser = ref(null)
+const loading = ref(false)
+const uploading = ref(false)
+const errorMessage = ref('')
+const imagePreview = ref(null)
+
+onMounted(() => {
+  const userData = localStorage.getItem('user')
+  if (userData) headerUser.value = JSON.parse(userData)
+})
 
 const form = ref({
   name: '',
+  species: 'dog',
   breed: '',
   age: '',
   gender: '',
   location: '',
-  distance: '',
   image: '',
   status: 'available'
 })
 
-const imageFile = ref(null)
-const imagePreview = ref(null)
-const errorMessage = ref('')
-
-const handleImageSelect = (event) => {
+const handleImageSelect = async (event) => {
   const file = event.target.files[0]
-  if (file) {
-    imageFile.value = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target.result
+  if (!file) return
+
+  // Show local preview immediately
+  const reader = new FileReader()
+  reader.onload = (e) => { imagePreview.value = e.target.result }
+  reader.readAsDataURL(file)
+
+  // Upload to backend
+  uploading.value = true
+  errorMessage.value = ''
+  try {
+    const formData = new FormData()
+    formData.append('image', file)
+    const token = localStorage.getItem('token')
+
+    const response = await fetch('http://localhost:8000/api/upload', {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData
+    })
+
+    const data = await response.json()
+    if (response.ok && data.url) {
+      form.value.image = data.url
+    } else {
+      errorMessage.value = data.error || data.message || 'Failed to upload image'
+      imagePreview.value = null
     }
-    reader.readAsDataURL(file)
-    form.value.image = file.name
+  } catch (err) {
+    errorMessage.value = 'Network error - check if backend is running on port 8000'
+    imagePreview.value = null
+  } finally {
+    uploading.value = false
   }
 }
 
 const submitPet = async () => {
+  if (loading.value) return
+  loading.value = true
+  errorMessage.value = ''
+
   try {
     const token = localStorage.getItem('token')
-    
-    const petData = {
-      name: form.value.name,
-      breed: form.value.breed,
-      age: form.value.age,
-      gender: form.value.gender,
-      location: form.value.location,
-      distance: form.value.distance,
-      status: form.value.status,
-      image: form.value.image
-    }
-    
     const response = await fetch('http://localhost:8000/api/pets', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(petData)
+      body: JSON.stringify({
+        name: form.value.name,
+        species: form.value.species,
+        breed: form.value.breed,
+        age: form.value.age,
+        gender: form.value.gender,
+        location: form.value.location,
+        status: form.value.status,
+        image: form.value.image
+      })
     })
 
     if (response.ok) {
@@ -63,18 +96,19 @@ const submitPet = async () => {
       errorMessage.value = error.message || 'Failed to add pet'
     }
   } catch (error) {
-    console.error('Failed to add pet:', error)
     errorMessage.value = 'Failed to add pet: ' + error.message
+  } finally {
+    loading.value = false
   }
 }
 
-const cancel = () => {
-  router.push('/dashboard')
-}
+const cancel = () => router.push('/dashboard')
 </script>
 
 <template>
   <div class="add-pet-page">
+    <DashboardHeader :user="headerUser" />
+
     <section class="hero">
       <div class="hero-content">
         <h1 class="hero-title">Add New Pet</h1>
@@ -84,9 +118,7 @@ const cancel = () => {
 
     <div class="form-container">
       <form @submit.prevent="submitPet" class="add-pet-form">
-        <div v-if="errorMessage" class="error-message">
-          {{ errorMessage }}
-        </div>
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
         <div class="form-group">
           <label>Pet Name *</label>
@@ -95,17 +127,26 @@ const cancel = () => {
 
         <div class="form-row">
           <div class="form-group">
+            <label>Species *</label>
+            <select v-model="form.species" required class="form-input">
+              <option value="dog">Dog</option>
+              <option value="cat">Cat</option>
+              <option value="rabbit">Rabbit</option>
+              <option value="bird">Bird</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>Breed *</label>
             <input type="text" v-model="form.breed" required class="form-input" placeholder="e.g., Golden Retriever">
-          </div>
-
-          <div class="form-group">
-            <label>Age *</label>
-            <input type="text" v-model="form.age" required class="form-input" placeholder="e.g., 2 years">
           </div>
         </div>
 
         <div class="form-row">
+          <div class="form-group">
+            <label>Age *</label>
+            <input type="text" v-model="form.age" required class="form-input" placeholder="e.g., 2 years">
+          </div>
           <div class="form-group">
             <label>Gender *</label>
             <select v-model="form.gender" required class="form-input">
@@ -114,7 +155,13 @@ const cancel = () => {
               <option value="Female">Female</option>
             </select>
           </div>
+        </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location *</label>
+            <input type="text" v-model="form.location" required class="form-input" placeholder="e.g., Zagreb">
+          </div>
           <div class="form-group">
             <label>Status</label>
             <select v-model="form.status" class="form-input">
@@ -125,35 +172,38 @@ const cancel = () => {
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Location *</label>
-            <input type="text" v-model="form.location" required class="form-input" placeholder="e.g., Austin">
-          </div>
-
-          <div class="form-group">
-            <label>Distance *</label>
-            <input type="text" v-model="form.distance" required class="form-input" placeholder="e.g., 5 miles">
-          </div>
-        </div>
-
         <div class="form-group">
-          <label>Upload Picture</label>
-          <input 
-            type="file" 
-            @change="handleImageSelect" 
-            accept="image/*" 
-            class="form-input file-input"
-          >
-          <p class="helper-text">Choose an image file for the pet</p>
-          <div v-if="imagePreview" class="image-preview-container">
-            <img :src="imagePreview" alt="Preview" class="image-preview">
+          <label>Photo *</label>
+          <div class="upload-area" @click="$refs.fileInput.click()">
+            <div v-if="uploading" class="upload-placeholder">
+              <div class="spinner"></div>
+              <p>Uploading...</p>
+            </div>
+            <div v-else-if="imagePreview" class="preview-container">
+              <img :src="imagePreview" alt="Preview" class="image-preview" />
+              <p class="change-hint">Click to change image</p>
+            </div>
+            <div v-else class="upload-placeholder">
+              <div class="upload-icon">📷</div>
+              <p class="upload-text">Click to upload a photo</p>
+              <p class="upload-sub">JPG, PNG, WEBP up to 5MB</p>
+            </div>
           </div>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="hidden-input"
+            @change="handleImageSelect"
+          />
+          <p v-if="!form.image && !uploading" class="helper-text">Please upload a photo for the pet.</p>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Pet</button>
+          <button type="button" class="btn btn-secondary" @click="cancel" :disabled="loading">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="loading || uploading || !form.image">
+            {{ loading ? 'Adding...' : 'Add Pet' }}
+          </button>
         </div>
       </form>
     </div>
@@ -172,10 +222,7 @@ const cancel = () => {
   text-align: center;
 }
 
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
+.hero-content { max-width: 800px; margin: 0 auto; }
 
 .hero-title {
   color: #fff;
@@ -185,7 +232,7 @@ const cancel = () => {
 }
 
 .hero-subtitle {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255,255,255,0.95);
   font-size: 18px;
   margin: 0;
 }
@@ -200,7 +247,7 @@ const cancel = () => {
   background: white;
   border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -234,8 +281,8 @@ const cancel = () => {
 
 .helper-text {
   font-size: 12px;
-  color: #6b7280;
-  margin: 0;
+  color: #ef4444;
+  margin: 2px 0 0;
 }
 
 .form-input {
@@ -249,44 +296,87 @@ const cancel = () => {
 .form-input:focus {
   outline: none;
   border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
 }
 
-.file-input {
-  cursor: pointer;
-  padding: 8px;
+.hidden-input {
+  display: none;
 }
 
-.file-input::file-selector-button {
-  padding: 8px 16px;
-  margin-right: 16px;
-  border: none;
-  border-radius: 6px;
-  background: #10b981;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.file-input::file-selector-button:hover {
-  background: #059669;
-}
-
-.image-preview-container {
-  margin-top: 16px;
+.upload-area {
   border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 2rem;
   text-align: center;
-  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-area:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+}
+
+.upload-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.upload-sub {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .image-preview {
+  max-height: 200px;
   max-width: 100%;
-  max-height: 300px;
-  border-radius: 6px;
-  object-fit: contain;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.change-hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .form-actions {
@@ -311,30 +401,20 @@ const cancel = () => {
   color: white;
 }
 
-.btn-primary:hover {
-  background: #059669;
-}
+.btn-primary:hover:not(:disabled) { background: #059669; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-secondary {
   background: #6b7280;
   color: white;
 }
 
-.btn-secondary:hover {
-  background: #4b5563;
-}
+.btn-secondary:hover:not(:disabled) { background: #4b5563; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 32px;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .add-pet-form {
-    padding: 24px;
-  }
+  .hero-title { font-size: 32px; }
+  .form-row { grid-template-columns: 1fr; }
+  .add-pet-form { padding: 24px; }
 }
 </style>

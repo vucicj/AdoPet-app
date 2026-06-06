@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import DashboardHeader from './DashboardHeader.vue'
 import defaultAvatar from '@/assets/images/siluette for logo.webp'
 
 const router = useRouter()
@@ -184,6 +185,7 @@ onMounted(async () => {
 
 <template>
   <div class="profile-page">
+    <DashboardHeader :user="user" />
     <div v-if="error" class="error-banner">
       {{ error }}
     </div>
@@ -192,7 +194,7 @@ onMounted(async () => {
       <p>Loading profile...</p>
     </div>
 
-    <div v-else>
+    <div v-else class="profile-content">
       <section class="profile-header">
         <div class="profile-card">
           <div class="profile-avatar">
@@ -308,6 +310,9 @@ onMounted(async () => {
 .profile-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.profile-content {
   padding: 2rem;
 }
 
@@ -780,7 +785,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .profile-page {
+  .profile-content {
     padding: 1rem;
   }
 

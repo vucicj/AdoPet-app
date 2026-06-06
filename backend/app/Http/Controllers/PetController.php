@@ -7,6 +7,29 @@ use Illuminate\Http\Request;
 
 class PetController extends Controller
 {
+    public function uploadImage(\Illuminate\Http\Request $request)
+    {
+        try {
+            if (!$request->hasFile('image')) {
+                return response()->json(['error' => 'No image file provided'], 422);
+            }
+            $request->validate(['image' => 'required|file|max:10240']);
+            $mime = $request->file('image')->getMimeType();
+            if (!str_starts_with($mime, 'image/')) {
+                return response()->json(['error' => 'File must be an image'], 422);
+            }
+            $path = $request->file('image')->store('pets', 'public');
+            if (!$path) {
+                return response()->json(['error' => 'Failed to store image'], 500);
+            }
+            return response()->json(['url' => asset('storage/' . $path)]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Invalid image', 'messages' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Upload failed', 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function index()
     {
         return response()->json(Pet::where('status', 'available')->get());
@@ -14,7 +37,11 @@ class PetController extends Controller
 
     public function show($id)
     {
-        return response()->json(Pet::find($id));
+        $pet = Pet::with('shelter:id,name')->find($id);
+        if (!$pet) {
+            return response()->json(['message' => 'Pet not found'], 404);
+        }
+        return response()->json($pet);
     }
 
     public function shelterPets()
@@ -42,11 +69,11 @@ class PetController extends Controller
 
             $data = $request->validate([
                 'name' => 'required|string|max:255',
+                'species' => 'nullable|string|in:dog,cat,rabbit,bird,other',
                 'breed' => 'required|string|max:255',
                 'age' => 'required|string|max:50',
                 'gender' => 'required|string|max:50',
                 'location' => 'required|string|max:255',
-                'distance' => 'required|string|max:50',
                 'image' => 'nullable|string|max:1024',
                 'status' => 'nullable|string|in:available,pending,adopted'
             ]);
@@ -70,11 +97,11 @@ class PetController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
+                'species' => 'sometimes|nullable|string|in:dog,cat,rabbit,bird,other',
                 'breed' => 'sometimes|required|string|max:100',
                 'age' => 'sometimes|required|string',
                 'gender' => 'sometimes|required|string|max:10',
                 'location' => 'sometimes|required|string|max:255',
-                'distance' => 'sometimes|required|string|max:50',
                 'image' => 'sometimes|nullable|string',
                 'status' => 'sometimes|required|in:available,pending,adopted',
             ]);

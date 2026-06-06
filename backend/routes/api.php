@@ -17,6 +17,7 @@ Route::middleware('cors')
                 
                 Route::get('/pets', [PetController::class, 'index']);
                 Route::get('/pets/{id}', [PetController::class, 'show']);
+                Route::post('/upload', [PetController::class, 'uploadImage']);
             });
 
         // Authenticated routes (all logged-in users)
@@ -54,6 +55,10 @@ Route::middleware('cors')
             ->group(function (): void {
                 Route::get('/admin/stats', [AdminController::class, 'getStats']);
                 Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
+                Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+                Route::get('/admin/pets', [AdminController::class, 'getAllPets']);
+                Route::post('/admin/shelters', [AdminController::class, 'createShelter']);
+                Route::get('/admin/adoptions', [AdminController::class, 'getAdoptions']);
                 Route::get('/admin/recent-accounts', [AdminController::class, 'getRecentAccounts']);
                 Route::get('/admin/recent-users', [AdminController::class, 'getRecentUsers']);
                 Route::get('/admin/recent-shelters', [AdminController::class, 'getRecentShelters']);
