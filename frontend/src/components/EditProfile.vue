@@ -1,8 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DashboardHeader from './DashboardHeader.vue'
 
 const router = useRouter()
+const headerUser = ref(null)
 const user = ref({
   name: '',
   email: ''
@@ -36,7 +38,7 @@ const saveProfile = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/user/profile', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -79,6 +81,7 @@ onMounted(() => {
   const userData = localStorage.getItem('user')
   if (userData) {
     const parsed = JSON.parse(userData)
+    headerUser.value = parsed
     user.value = {
       name: parsed.name || '',
       email: parsed.email || ''
@@ -90,6 +93,7 @@ onMounted(() => {
 
 <template>
   <div class="edit-profile-page">
+    <DashboardHeader :user="headerUser" />
     <div class="container">
       <div class="edit-profile-card">
         <div class="header">
@@ -149,15 +153,16 @@ onMounted(() => {
 .edit-profile-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
   width: 100%;
   max-width: 500px;
+  margin: 0 auto;
 }
 
 .edit-profile-card {

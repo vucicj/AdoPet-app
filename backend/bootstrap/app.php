@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prepend(\App\Http\Middleware\Cors::class);
         $middleware->alias([
             'guest' => \App\Http\Middleware\EnsureGuest::class,
             'role' => \App\Http\Middleware\CheckRole::class,

@@ -8,23 +8,49 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['logout'])
+
 const router = useRouter()
+
+const goToDashboard = () => {
+  router.push('/dashboard')
+}
 
 const goToProfile = () => {
   router.push('/profile')
+}
+
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+  } catch {
+    // ignore
+  } finally {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    router.push('/')
+  }
 }
 </script>
 
 <template>
   <header class="header">
     <div class="header-content">
-      <div class="logo">
+      <div class="logo" @click="goToDashboard" style="cursor: pointer;">
         <span class="paw-icon">🐾</span>
         <span class="brand-name">AdoPet</span>
       </div>
-      
+
       <div class="user-section">
-        <span class="user-name" v-if="user" @click="goToProfile" style="cursor: pointer;">{{ user.name }}</span>
+        <span class="user-name" v-if="user" @click="goToProfile">{{ user.name }}</span>
+        <button v-if="user" class="logout-btn" @click="handleLogout">Logout</button>
       </div>
     </div>
   </header>
@@ -70,6 +96,34 @@ const goToProfile = () => {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.user-name:hover {
+  color: #8b5cf6;
+}
+
+.logout-btn {
+  padding: 6px 14px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
 }
 
 @media (max-width: 768px) {

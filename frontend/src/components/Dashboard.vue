@@ -32,33 +32,12 @@ const getImagePath = (imageName) => {
   }
 }
 
-const normalizeImageName = (imageValue) => {
-  if (!imageValue) {
-    return ''
-  }
-
-  try {
-    if (imageValue.startsWith('http://') || imageValue.startsWith('https://')) {
-      const url = new URL(imageValue)
-      return url.pathname.split('/').pop() || ''
-    }
-  } catch {
-    // Fall through to simple parsing
-  }
-
-  if (imageValue.includes('/')) {
-    return imageValue.split('/').pop() || imageValue
-  }
-
-  return imageValue
-}
-
 const fetchPets = async (role, isInitialLoad = false) => {
   try {
     const token = localStorage.getItem('token')
     const isShelter = role === 'shelter'
     const response = await fetch(
-      isShelter ? 'http://localhost:8000/api/shelter/dashboard' : 'http://localhost:8000/api/pets',
+      isShelter ? `${import.meta.env.VITE_API_URL}/api/shelter/dashboard` : `${import.meta.env.VITE_API_URL}/api/pets`,
       {
         headers: isShelter
           ? {
@@ -72,11 +51,10 @@ const fetchPets = async (role, isInitialLoad = false) => {
     const petList = isShelter ? data.pets : data
 
     pets.value = petList.map(pet => {
-      const imageName = normalizeImageName(pet.image)
+      const imageUrl = getImagePath(pet.image)
       return {
         ...pet,
-        image: imageName,
-        imageUrl: getImagePath(imageName) || getImagePath(pet.image)
+        imageUrl
       }
     })
   } catch (error) {
@@ -95,7 +73,7 @@ onMounted(async () => {
     const token = localStorage.getItem('token')
     
     // Fetch fresh user data from API - always get current user
-    const response = await fetch('http://localhost:8000/api/user', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

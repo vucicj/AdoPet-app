@@ -1,8 +1,15 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DashboardHeader from './DashboardHeader.vue'
 
 const router = useRouter()
+const headerUser = ref(null)
+
+onMounted(() => {
+  const userData = localStorage.getItem('user')
+  if (userData) headerUser.value = JSON.parse(userData)
+})
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
@@ -58,7 +65,7 @@ const savePassword = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/user/password', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/password`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -92,6 +99,7 @@ const savePassword = async () => {
 
 <template>
   <div class="settings-page">
+    <DashboardHeader :user="headerUser" />
     <div class="container">
       <div class="settings-card">
         <div class="header">
@@ -164,15 +172,13 @@ const savePassword = async () => {
 .settings-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .container {
   width: 100%;
   max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
 .settings-card {

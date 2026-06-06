@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import DashboardHeader from './DashboardHeader.vue'
 import defaultAvatar from '@/assets/images/siluette for logo.webp'
 
 const router = useRouter()
@@ -65,7 +66,7 @@ const closePage = () => {
 const handleLogout = async () => {
   try {
     const token = localStorage.getItem('token')
-    await fetch('http://localhost:8000/api/logout', {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -84,7 +85,7 @@ const handleLogout = async () => {
 const withdrawApplication = async (id) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/applications/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/applications/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -125,7 +126,7 @@ onMounted(async () => {
       return
     }
 
-    const userResponse = await fetch('http://localhost:8000/api/user', {
+    const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -154,7 +155,7 @@ onMounted(async () => {
     const userRole = user.value.role
 
     if (userRole !== 'shelter') {
-      const response = await fetch('http://localhost:8000/api/applications', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -184,6 +185,7 @@ onMounted(async () => {
 
 <template>
   <div class="profile-page">
+    <DashboardHeader :user="user" />
     <div v-if="error" class="error-banner">
       {{ error }}
     </div>
@@ -192,7 +194,7 @@ onMounted(async () => {
       <p>Loading profile...</p>
     </div>
 
-    <div v-else>
+    <div v-else class="profile-content">
       <section class="profile-header">
         <div class="profile-card">
           <div class="profile-avatar">
@@ -308,6 +310,9 @@ onMounted(async () => {
 .profile-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.profile-content {
   padding: 2rem;
 }
 
@@ -780,7 +785,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .profile-page {
+  .profile-content {
     padding: 1rem;
   }
 

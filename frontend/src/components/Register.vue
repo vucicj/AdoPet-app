@@ -26,7 +26,7 @@ const handleRegister = async () => {
 
     const fullName = `${form.value.name} ${form.value.surname}`.trim()
 
-    const response = await fetch('http://localhost:8000/api/register', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,6 +121,10 @@ const handleRegister = async () => {
 
           <div class="signup-prompt">
             <p>Already have an account? <button class="signup-link" type="button" @click="goLogin">Login</button></p>
+          </div>
+
+          <div class="shelter-note">
+            🏠 Want to register as a shelter? Contact us at <strong>ivana@gmail.com</strong>
           </div>
         </div>
       </div>
@@ -351,6 +355,26 @@ const handleRegister = async () => {
 
 .signup-link:hover {
   color: #6a4fb7;
+}
+
+.shelter-note {
+  text-align: center;
+  font-size: 13px;
+  color: #7a7f90;
+  padding: 10px 14px;
+  background: #f5f3ff;
+  border-radius: 8px;
+  border: 1px solid #e0d9ff;
+}
+
+.shelter-note a {
+  color: #7d5fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.shelter-note a:hover {
+  text-decoration: underline;
 }
 
 .divider {

@@ -23,18 +23,48 @@ const petToDelete = ref(null)
 
 const editForm = ref({
   name: '',
+  species: 'dog',
   breed: '',
   age: '',
   gender: '',
   location: '',
-  distance: '',
   image: '',
   status: 'available'
 })
 
-const imageFile = ref(null)
-const imagePreview = ref(null)
 const petStatusFilter = ref('available')
+const editImagePreview = ref(null)
+const editUploading = ref(false)
+
+const handleEditImageSelect = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => { editImagePreview.value = e.target.result }
+  reader.readAsDataURL(file)
+
+  editUploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('image', file)
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData
+    })
+    const data = await response.json()
+    if (response.ok && data.url) {
+      editForm.value.image = data.url
+      editImagePreview.value = data.url
+    }
+  } catch (err) {
+    console.error('Upload error:', err)
+  } finally {
+    editUploading.value = false
+  }
+}
 
 const pendingApplications = computed(() => 
   applications.value.filter(app => app.status === 'pending')
@@ -64,7 +94,7 @@ const visibleApplications = computed(() =>
 const fetchApplications = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8000/api/shelter/dashboard', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shelter/dashboard`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -95,7 +125,7 @@ const closeModal = () => {
 const updateApplicationStatus = async (applicationId, status) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/shelter/applications/${applicationId}/status`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shelter/applications/${applicationId}/status`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -118,37 +148,27 @@ const openEditModal = (pet) => {
   selectedPet.value = pet
   editForm.value = {
     name: pet.name,
+    species: pet.species || 'dog',
     breed: pet.breed,
     age: pet.age,
     gender: pet.gender || '',
     location: pet.location || '',
-    distance: pet.distance || '',
     image: pet.image || '',
     status: pet.status
   }
-  imageFile.value = null
-  imagePreview.value = pet.imageUrl || (pet.image ? `http://localhost:5173/src/assets/images/${pet.image}` : null)
+  // If image is a full URL (uploaded file), show it as preview
+  if (pet.image && pet.image.startsWith('http')) {
+    editImagePreview.value = pet.image
+  } else {
+    editImagePreview.value = null
+  }
   showEditModal.value = true
 }
 
 const closeEditModal = () => {
   showEditModal.value = false
   selectedPet.value = null
-  imageFile.value = null
-  imagePreview.value = null
-}
-
-const handleImageSelect = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    imageFile.value = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
-    editForm.value.image = file.name
-  }
+  editImagePreview.value = null
 }
 
 const updatePet = async () => {
@@ -158,17 +178,16 @@ const updatePet = async () => {
     // Build pet data - always include all fields including the original image
     const petData = {
       name: editForm.value.name,
+      species: editForm.value.species,
       breed: editForm.value.breed,
       age: editForm.value.age,
       gender: editForm.value.gender,
       location: editForm.value.location,
-      distance: editForm.value.distance,
       status: editForm.value.status,
-      // Keep the image from editForm (either original or new filename)
       image: editForm.value.image
     }
     
-    const response = await fetch(`http://localhost:8000/api/pets/${selectedPet.value.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${selectedPet.value.id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -204,7 +223,7 @@ const closeDeleteModal = () => {
 const confirmDelete = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`http://localhost:8000/api/pets/${petToDelete.value.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pets/${petToDelete.value.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -235,7 +254,15 @@ const goAddPet = () => {
 }
 
 const getPetImage = (imageName) => {
-  return imageName ? `http://localhost:5173/src/assets/images/${imageName}` : ''
+  if (!imageName) return ''
+  if (imageName.startsWith('http://') || imageName.startsWith('https://') || imageName.startsWith('data:') || imageName.startsWith('/')) {
+    return imageName
+  }
+  try {
+    return new URL(`../assets/images/${imageName}`, import.meta.url).href
+  } catch {
+    return ''
+  }
 }
 </script>
 
@@ -286,7 +313,7 @@ const getPetImage = (imageName) => {
           </div>
           <div v-else class="applications-list">
             <div v-for="app in visibleApplications" :key="app.id" class="application-item">
-              <img :src="app.pet_image" :alt="app.pet_name" class="app-pet-image" />
+              <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
               <div class="app-info">
                 <h3>{{ app.full_name }}</h3>
                 <p>Applied for <strong>{{ app.pet_name }}</strong></p>
@@ -336,7 +363,7 @@ const getPetImage = (imageName) => {
           </div>
           <div class="pets-grid-small">
             <div v-for="pet in filteredPets" :key="pet.id" class="pet-card-small">
-              <img :src="pet.imageUrl || pet.image" :alt="pet.name" />
+              <img :src="pet.imageUrl || getPetImage(pet.image)" :alt="pet.name" />
               <div class="pet-card-info">
                 <h4>{{ pet.name }}</h4>
                 <p>{{ pet.breed }}</p>
@@ -369,12 +396,6 @@ const getPetImage = (imageName) => {
           </div>
         </div>
 
-        <div class="shelter-section">
-          <h2>Adoption Requests</h2>
-          <div class="requests-list">
-            <p class="placeholder-text">No pending requests</p>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -458,17 +479,28 @@ const getPetImage = (imageName) => {
 
             <div class="form-row">
               <div class="form-group">
-                <label>Breed</label>
-                <input type="text" v-model="editForm.breed" required class="form-input">
+                <label>Species</label>
+                <select v-model="editForm.species" required class="form-input">
+                  <option value="dog">Dog</option>
+                  <option value="cat">Cat</option>
+                  <option value="rabbit">Rabbit</option>
+                  <option value="bird">Bird</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
 
               <div class="form-group">
-                <label>Age</label>
-                <input type="text" v-model="editForm.age" required class="form-input" placeholder="e.g., 2 years">
+                <label>Breed</label>
+                <input type="text" v-model="editForm.breed" required class="form-input">
               </div>
             </div>
 
             <div class="form-row">
+              <div class="form-group">
+                <label>Age</label>
+                <input type="text" v-model="editForm.age" required class="form-input" placeholder="e.g., 2 years">
+              </div>
+
               <div class="form-group">
                 <label>Gender</label>
                 <select v-model="editForm.gender" required class="form-input">
@@ -477,7 +509,9 @@ const getPetImage = (imageName) => {
                   <option value="Female">Female</option>
                 </select>
               </div>
+            </div>
 
+            <div class="form-row">
               <div class="form-group">
                 <label>Status</label>
                 <select v-model="editForm.status" class="form-input">
@@ -488,30 +522,32 @@ const getPetImage = (imageName) => {
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Location</label>
-                <input type="text" v-model="editForm.location" required class="form-input" placeholder="e.g., Austin">
-              </div>
-
-              <div class="form-group">
-                <label>Distance</label>
-                <input type="text" v-model="editForm.distance" required class="form-input" placeholder="e.g., 5 miles">
-              </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" v-model="editForm.location" required class="form-input" placeholder="e.g., Zagreb">
             </div>
 
             <div class="form-group">
-              <label>Upload Picture</label>
-              <input 
-                type="file" 
-                @change="handleImageSelect" 
-                accept="image/*" 
-                class="form-input file-input"
-              >
-              <p class="helper-text">Choose an image file for the pet</p>
-              <div v-if="imagePreview" class="image-preview-container">
-                <img :src="imagePreview" alt="Preview" class="image-preview">
+              <label>Photo</label>
+              <div class="upload-area" @click="$refs.editFileInput.click()">
+                <div v-if="editUploading" class="upload-placeholder">
+                  <div class="spinner"></div>
+                  <p>Uploading...</p>
+                </div>
+                <div v-else-if="editImagePreview" class="preview-container">
+                  <img :src="editImagePreview" alt="Preview" class="image-preview" />
+                  <p class="change-hint">Click to change image</p>
+                </div>
+                <div v-else-if="editForm.image && !editForm.image.startsWith('http')" class="preview-container">
+                  <img :src="getPetImage(editForm.image)" alt="Preview" class="image-preview" />
+                  <p class="change-hint">Click to change image</p>
+                </div>
+                <div v-else class="upload-placeholder">
+                  <div class="upload-icon">📷</div>
+                  <p class="upload-text">Click to upload a photo</p>
+                </div>
               </div>
+              <input ref="editFileInput" type="file" accept="image/*" class="hidden-input" @change="handleEditImageSelect" />
             </div>
 
             <div class="modal-actions">
@@ -1062,42 +1098,73 @@ textarea.form-input {
   font-family: inherit;
 }
 
-.file-input {
-  cursor: pointer;
-  padding: 0.5rem;
-}
+.hidden-input { display: none; }
 
-.file-input::file-selector-button {
-  padding: 0.5rem 1rem;
-  margin-right: 1rem;
-  border: none;
-  border-radius: 6px;
-  background: #3b82f6;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.file-input::file-selector-button:hover {
-  background: #2563eb;
-}
-
-.image-preview-container {
-  margin-top: 1rem;
+.upload-area {
   border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 10px;
+  padding: 1.25rem;
   text-align: center;
-  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-area:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.upload-icon { font-size: 2rem; }
+
+.upload-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .image-preview {
+  max-height: 150px;
   max-width: 100%;
-  max-height: 300px;
   border-radius: 6px;
-  object-fit: contain;
+  object-fit: cover;
 }
+
+.change-hint {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .btn-primary {
   background: #3b82f6;

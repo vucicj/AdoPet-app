@@ -1,10 +1,14 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const form = ref({
   shelterName: '',
   email: '',
   password: '',
+  passwordConfirmation: '',
   phone: '',
   address: '',
   city: '',
@@ -26,10 +30,43 @@ const handleSubmit = async () => {
     return
   }
 
+  if (form.value.password.length < 8) {
+    error.value = 'Password must be at least 8 characters.'
+    return
+  }
+
   loading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 600))
-    success.value = 'Shelter application submitted!'
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        name: form.value.shelterName,
+        email: form.value.email,
+        password: form.value.password,
+        password_confirmation: form.value.password,
+        role: 'shelter'
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      if (response.status === 422 && data.errors) {
+        error.value = Object.values(data.errors).flat().join(', ')
+      } else {
+        error.value = data.message || 'Failed to register shelter.'
+      }
+      return
+    }
+
+    success.value = 'Shelter registered successfully! You can now log in.'
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
   } catch (err) {
     error.value = 'Failed to submit application.'
   } finally {
