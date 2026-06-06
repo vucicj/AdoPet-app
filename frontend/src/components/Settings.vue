@@ -21,7 +21,7 @@ const passwordForm = ref({
 })
 
 const goBack = () => {
-  router.push('/profile')
+  router.go(-1)
 }
 
 const resetPasswordForm = () => {
@@ -149,7 +149,7 @@ const savePassword = async () => {
             <button 
               type="button" 
               class="btn btn-secondary" 
-              @click="resetPasswordForm"
+              @click="goBack"
               :disabled="loading"
             >
               Cancel

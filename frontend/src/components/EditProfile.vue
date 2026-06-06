@@ -18,7 +18,7 @@ const error = ref('')
 const success = ref('')
 
 const goBack = () => {
-  router.push('/profile')
+  router.go(-1)
 }
 
 const resetForm = () => {
@@ -127,10 +127,10 @@ onMounted(() => {
           </div>
 
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="btn btn-secondary" 
-              @click="resetForm"
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="goBack"
               :disabled="loading"
             >
               Cancel
