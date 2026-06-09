@@ -18,6 +18,25 @@ const selectedApplication = ref(null)
 const showApplicationModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
+const viewingPets = ref(false)
+const viewingApplications = ref(false)
+const viewingAdopted = ref(false)
+
+const handlePetsClick = () => {
+  viewingPets.value = true
+  viewingApplications.value = false
+  viewingAdopted.value = false
+}
+const handleApplicationsClick = () => {
+  viewingPets.value = false
+  viewingApplications.value = true
+  viewingAdopted.value = false
+}
+const handleAdoptedClick = () => {
+  viewingPets.value = false
+  viewingApplications.value = false
+  viewingAdopted.value = true
+}
 const selectedPet = ref(null)
 const petToDelete = ref(null)
 
@@ -281,19 +300,19 @@ const getPetImage = (imageName) => {
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card clickable-card" @click="handlePetsClick">
           <div class="stat-info">
             <h3>Your Pets</h3>
             <p class="stat-number">{{ props.pets.length }}</p>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable-card" @click="handleApplicationsClick">
           <div class="stat-info">
             <h3>Pending Requests</h3>
             <p class="stat-number">{{ pendingApplications.length }}</p>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable-card" @click="handleAdoptedClick">
           <div class="stat-info">
             <h3>Completed Adoptions</h3>
             <p class="stat-number">{{ completedAdoptions }}</p>
@@ -301,99 +320,69 @@ const getPetImage = (imageName) => {
         </div>
       </div>
 
-      <div class="shelter-sections">
-        <!-- Applications Section -->
-        <div class="shelter-section">
-          <h2>Recent Applications</h2>
-          <div v-if="visibleApplications.length === 0" class="empty-state">
-            No applications yet
-          </div>
-          <div v-else class="applications-list">
-            <div v-for="app in visibleApplications" :key="app.id" class="application-item">
-              <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
-              <div class="app-info">
-                <h3>{{ app.full_name }}</h3>
-                <p>Applied for <strong>{{ app.pet_name }}</strong></p>
-                <p class="app-date">{{ app.applied_at }}</p>
-              </div>
-              <div class="app-status">
-                <span class="status-badge" :class="`status-${app.status}`">
-                  {{ app.status }}
-                </span>
-              </div>
-              <button class="view-btn" @click="viewApplication(app)">View Details</button>
-            </div>
-          </div>
+      <!-- Your Pets -->
+      <div v-if="viewingPets" class="shelter-section">
+        <h2>Your Pets</h2>
+        <div class="filter-row">
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'available' }" @click="petStatusFilter = 'available'">Available</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'pending' }" @click="petStatusFilter = 'pending'">Pending</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'adopted' }" @click="petStatusFilter = 'adopted'">Adopted</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === '' }" @click="petStatusFilter = ''">All</button>
         </div>
-
-        <div class="shelter-section">
-          <h2>Your Pets</h2>
-          <div class="filter-row">
-            <button
-              class="filter-btn"
-              :class="{ active: petStatusFilter === 'available' }"
-              @click="petStatusFilter = 'available'"
-            >
-              Available
-            </button>
-            <button
-              class="filter-btn"
-              :class="{ active: petStatusFilter === 'pending' }"
-              @click="petStatusFilter = 'pending'"
-            >
-              Pending
-            </button>
-            <button
-              class="filter-btn"
-              :class="{ active: petStatusFilter === 'adopted' }"
-              @click="petStatusFilter = 'adopted'"
-            >
-              Adopted
-            </button>
-            <button
-              class="filter-btn"
-              :class="{ active: petStatusFilter === '' }"
-              @click="petStatusFilter = ''"
-            >
-              All
-            </button>
-          </div>
-          <div class="pets-grid-small">
-            <div v-for="pet in filteredPets" :key="pet.id" class="pet-card-small">
-              <img :src="pet.imageUrl || getPetImage(pet.image)" :alt="pet.name" />
-              <div class="pet-card-info">
-                <h4>{{ pet.name }}</h4>
-                <p>{{ pet.breed }}</p>
-                <div class="pet-actions">
-                  <button class="btn-edit" @click="openEditModal(pet)">Edit</button>
-                  <button class="btn-delete" @click="openDeleteModal(pet)">Delete</button>
-                </div>
+        <div class="pets-grid-small">
+          <div v-for="pet in filteredPets" :key="pet.id" class="pet-card-small">
+            <img :src="pet.imageUrl || getPetImage(pet.image)" :alt="pet.name" />
+            <div class="pet-card-info">
+              <h4>{{ pet.name }}</h4>
+              <p>{{ pet.breed }}</p>
+              <div class="pet-actions">
+                <button class="btn-edit" @click="openEditModal(pet)">Edit</button>
+                <button class="btn-delete" @click="openDeleteModal(pet)">Delete</button>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="shelter-section">
-          <h2>Adopted Pets</h2>
-          <div v-if="adoptedPets.length === 0" class="empty-state">
-            No adoptions yet
-          </div>
-          <div v-else class="applications-list">
-            <div v-for="app in adoptedPets" :key="app.application_id" class="application-item">
-              <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
-              <div class="app-info">
-                <h3>{{ app.pet_name }}</h3>
-                <p>Adopted by <strong>{{ app.adopted_by }}</strong></p>
-                <p class="app-date">Adopted on {{ app.adopted_at }}</p>
-              </div>
-              <div class="app-status">
-                <span class="status-badge status-approved">approved</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Applications -->
+      <div v-if="viewingApplications" class="shelter-section">
+        <h2>Pending Requests</h2>
+        <div v-if="visibleApplications.length === 0" class="empty-state">No applications yet</div>
+        <div v-else class="applications-list">
+          <div v-for="app in visibleApplications" :key="app.id" class="application-item">
+            <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
+            <div class="app-info">
+              <h3>{{ app.full_name }}</h3>
+              <p>Applied for <strong>{{ app.pet_name }}</strong></p>
+              <p class="app-date">{{ app.applied_at }}</p>
+            </div>
+            <div class="app-status">
+              <span class="status-badge" :class="`status-${app.status}`">{{ app.status }}</span>
+            </div>
+            <button class="view-btn" @click="viewApplication(app)">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adopted Pets -->
+      <div v-if="viewingAdopted" class="shelter-section">
+        <h2>Completed Adoptions</h2>
+        <div v-if="adoptedPets.length === 0" class="empty-state">No adoptions yet</div>
+        <div v-else class="applications-list">
+          <div v-for="app in adoptedPets" :key="app.application_id" class="application-item">
+            <img :src="getPetImage(app.pet_image)" :alt="app.pet_name" class="app-pet-image" />
+            <div class="app-info">
+              <h3>{{ app.pet_name }}</h3>
+              <p>Adopted by <strong>{{ app.adopted_by }}</strong></p>
+              <p class="app-date">Adopted on {{ app.adopted_at }}</p>
+            </div>
+            <div class="app-status">
+              <span class="status-badge status-approved">approved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Application Details Modal -->
@@ -638,7 +627,15 @@ const getPetImage = (imageName) => {
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: transform 0.2s;
+}
+
+.clickable-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.clickable-card:hover {
+  border-color: #10b981;
 }
 
 
