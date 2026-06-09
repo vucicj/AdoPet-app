@@ -132,7 +132,7 @@ const handleLogin = async () => {
 :global(body) {
 	margin: 0;
 	font-family: 'Poppins', sans-serif;
-	background: linear-gradient(135deg, #8ec5fc, #e0c3fc);
+	background: #dce8fb;
 }
 
 .auth-page {
@@ -149,11 +149,10 @@ const handleLogin = async () => {
 	background: #fff;
 	border-radius: 18px;
 	overflow: hidden;
-	box-shadow: 0 20px 50px rgba(72, 52, 126, 0.2);
 }
 
 .brand-panel {
-	background: linear-gradient(180deg, #b06ab3, #7d5fff);
+	background: #7d5fff;
 	color: #fff;
 	padding: 48px 42px;
 	display: grid;
@@ -181,12 +180,11 @@ const handleLogin = async () => {
 
 .brand-illustration {
 	margin-top: 12px;
-	background: rgba(255, 255, 255, 0.18);
+	background: #ffffff;
 	border-radius: 12px;
 	padding: 14px;
 	width: 100%;
 	max-width: 260px;
-	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .brand-illustration img {
@@ -263,7 +261,6 @@ const handleLogin = async () => {
 
 .field input:focus {
 	border-color: #a48bff;
-	box-shadow: 0 0 0 3px rgba(164, 139, 255, 0.18);
 }
 
 .options {
@@ -304,12 +301,8 @@ const handleLogin = async () => {
 	font-weight: 700;
 	cursor: pointer;
 	transition: transform 0.12s ease, box-shadow 0.12s ease;
-	box-shadow: 0 10px 20px rgba(125, 95, 255, 0.25);
 }
 
-.primary:hover {
-	transform: translateY(-1px);
-}
 
 .primary:disabled {
 	opacity: 0.6;
@@ -338,9 +331,6 @@ const handleLogin = async () => {
 	font-size: 14px;
 }
 
-.signup-link:hover {
-	color: #6a4fb7;
-}
 
 .divider {
 	display: grid;
@@ -372,10 +362,6 @@ const handleLogin = async () => {
 	transition: border-color 0.2s ease, transform 0.12s ease;
 }
 
-.social-btn:hover {
-	border-color: #c8ccda;
-	transform: translateY(-1px);
-}
 
 .google {
 	color: #e53935;

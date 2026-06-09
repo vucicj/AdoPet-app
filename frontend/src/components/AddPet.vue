@@ -184,7 +184,6 @@ const cancel = () => router.push('/dashboard')
               <p class="change-hint">Click to change image</p>
             </div>
             <div v-else class="upload-placeholder">
-              <div class="upload-icon">📷</div>
               <p class="upload-text">Click to upload a photo</p>
               <p class="upload-sub">JPG, PNG, WEBP up to 5MB</p>
             </div>
@@ -217,7 +216,7 @@ const cancel = () => router.push('/dashboard')
 }
 
 .hero {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981;
   padding: 60px 24px;
   text-align: center;
 }
@@ -247,7 +246,6 @@ const cancel = () => router.push('/dashboard')
   background: white;
   border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -296,7 +294,6 @@ const cancel = () => router.push('/dashboard')
 .form-input:focus {
   outline: none;
   border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
 }
 
 .hidden-input {
@@ -317,10 +314,6 @@ const cancel = () => router.push('/dashboard')
   justify-content: center;
 }
 
-.upload-area:hover {
-  border-color: #10b981;
-  background: #f0fdf4;
-}
 
 .upload-placeholder {
   display: flex;
@@ -329,9 +322,6 @@ const cancel = () => router.push('/dashboard')
   gap: 8px;
 }
 
-.upload-icon {
-  font-size: 2.5rem;
-}
 
 .upload-text {
   font-size: 1rem;

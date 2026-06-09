@@ -216,14 +216,12 @@ onMounted(async () => {
 
         <div class="quick-stats">
           <div class="stat-item">
-            <div class="stat-icon applications-icon">📋</div>
             <div class="stat-content">
               <div class="stat-value">{{ pendingApplications }}</div>
               <div class="stat-label">Applications</div>
             </div>
           </div>
           <div class="stat-item">
-            <div class="stat-icon adopted-icon">🏠</div>
             <div class="stat-content">
               <div class="stat-value">{{ adoptedPets }}</div>
               <div class="stat-label">Adopted</div>
@@ -283,9 +281,8 @@ onMounted(async () => {
 
       <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
         <div class="modal-content" @click.stop>
-          <button class="modal-close" @click="closeContactModal">✕</button>
+          <button class="modal-close" @click="closeContactModal">×</button>
           <div class="modal-body">
-            <div class="modal-icon">📞</div>
             <h2 class="modal-title">Contact the Shelter</h2>
             <p class="modal-subtitle">For adoption of <strong>{{ contactInfo.petName }}</strong></p>
             
@@ -309,7 +306,7 @@ onMounted(async () => {
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f0f4f8;
 }
 
 .profile-content {
@@ -343,7 +340,6 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
@@ -367,10 +363,6 @@ onMounted(async () => {
   z-index: 10;
 }
 
-.close-btn:hover {
-  color: #1f2937;
-  background: #f3f4f6;
-}
 
 .profile-card {
   display: flex;
@@ -441,14 +433,10 @@ onMounted(async () => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: #7c3aed;
   color: white;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-}
 
 .btn-secondary {
   background: #f3f4f6;
@@ -456,27 +444,18 @@ onMounted(async () => {
   border: 1px solid #d1d5db;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
-}
 
 .btn-logout {
   background: #ef4444;
   color: white;
 }
 
-.btn-logout:hover {
-  background: #dc2626;
-}
 
 .btn-success {
   background: #10b981;
   color: white;
 }
 
-.btn-success:hover {
-  background: #059669;
-}
 
 .btn-danger {
   background: #ef4444;
@@ -485,9 +464,6 @@ onMounted(async () => {
   padding: 0.5rem 1rem;
 }
 
-.btn-danger:hover {
-  background: #dc2626;
-}
 
 .quick-stats {
   display: grid;
@@ -504,15 +480,6 @@ onMounted(async () => {
   border-radius: 8px;
 }
 
-.stat-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
 
 .saved-icon {
   background: #fce7f3;
@@ -546,7 +513,6 @@ onMounted(async () => {
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
@@ -576,10 +542,6 @@ onMounted(async () => {
   transition: all 0.3s ease;
 }
 
-.application-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transform: translateY(-4px);
-}
 
 .app-image {
   width: 100%;
@@ -670,7 +632,6 @@ onMounted(async () => {
 .modal-content {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   max-width: 500px;
   width: 90%;
   position: relative;
@@ -707,19 +668,12 @@ onMounted(async () => {
   z-index: 10;
 }
 
-.modal-close:hover {
-  color: #1f2937;
-}
 
 .modal-body {
   padding: 3rem 2rem 2rem;
   text-align: center;
 }
 
-.modal-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
 
 .modal-title {
   font-size: 1.75rem;
@@ -769,9 +723,6 @@ onMounted(async () => {
 }
 
 .phone-link:hover,
-.email-link:hover {
-  color: #7c3aed;
-}
 
 .modal-actions {
   display: flex;

@@ -193,7 +193,7 @@ onMounted(async () => {
                 <span class="detail-item">{{ pet.age }}</span>
               </p>
               <p class="pet-details">
-                <span class="detail-item">📍 {{ pet.location }}</span>
+                <span class="detail-item">{{ pet.location }}</span>
               </p>
               <div class="pet-actions">
                 <button class="details-btn" @click="viewDetails(pet.id)">Details</button>
@@ -209,7 +209,7 @@ onMounted(async () => {
 
 <style scoped>
 .hero {
-  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+  background: #a78bfa;
   padding: 60px 24px;
   text-align: center;
 }
@@ -240,7 +240,6 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 24px;
   height: fit-content;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .filters-header {
@@ -332,14 +331,9 @@ onMounted(async () => {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.pet-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
 
 .pet-image-wrapper {
   position: relative;
@@ -397,10 +391,6 @@ onMounted(async () => {
   transition: background 0.2s, border-color 0.2s;
 }
 
-.details-btn:hover {
-  background: #e5e7eb;
-  border-color: #d1d5db;
-}
 
 .adopt-btn {
   padding: 12px;
@@ -414,9 +404,6 @@ onMounted(async () => {
   transition: background 0.2s;
 }
 
-.adopt-btn:hover {
-  background: #7c3aed;
-}
 
 .location-input {
   width: 100%;
@@ -431,7 +418,6 @@ onMounted(async () => {
 .location-input:focus {
   outline: none;
   border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 @media (max-width: 1024px) {

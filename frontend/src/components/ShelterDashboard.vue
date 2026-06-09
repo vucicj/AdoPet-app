@@ -282,21 +282,18 @@ const getPetImage = (imageName) => {
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Your Pets</h3>
             <p class="stat-number">{{ props.pets.length }}</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">📋</div>
           <div class="stat-info">
             <h3>Pending Requests</h3>
             <p class="stat-number">{{ pendingApplications.length }}</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">✅</div>
           <div class="stat-info">
             <h3>Completed Adoptions</h3>
             <p class="stat-number">{{ completedAdoptions }}</p>
@@ -404,7 +401,6 @@ const getPetImage = (imageName) => {
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2>Application Details</h2>
-          <button class="close-btn" @click="closeModal">✕</button>
         </div>
 
         <div v-if="selectedApplication" class="modal-body">
@@ -467,7 +463,6 @@ const getPetImage = (imageName) => {
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2>Edit Pet</h2>
-          <button class="close-btn" @click="closeEditModal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -543,7 +538,6 @@ const getPetImage = (imageName) => {
                   <p class="change-hint">Click to change image</p>
                 </div>
                 <div v-else class="upload-placeholder">
-                  <div class="upload-icon">📷</div>
                   <p class="upload-text">Click to upload a photo</p>
                 </div>
               </div>
@@ -564,7 +558,6 @@ const getPetImage = (imageName) => {
       <div class="modal-content modal-small" @click.stop>
         <div class="modal-header">
           <h2>Confirm Delete</h2>
-          <button class="close-btn" @click="closeDeleteModal">✕</button>
         </div>
 
         <div class="modal-body">
@@ -585,7 +578,7 @@ const getPetImage = (imageName) => {
 
 <style scoped>
 .hero-shelter {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981;
   padding: 60px 24px;
   text-align: center;
 }
@@ -630,9 +623,6 @@ const getPetImage = (imageName) => {
   transition: background 0.2s;
 }
 
-.primary-btn:hover {
-  background: #059669;
-}
 
 .stats-grid {
   display: grid;
@@ -648,25 +638,10 @@ const getPetImage = (imageName) => {
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
-.stat-icon {
-  font-size: 36px;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  border-radius: 12px;
-}
 
 .stat-info h3 {
   margin: 0;
@@ -691,7 +666,6 @@ const getPetImage = (imageName) => {
   background: #fff;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .shelter-section h2 {
@@ -720,9 +694,6 @@ const getPetImage = (imageName) => {
   transition: all 0.2s;
 }
 
-.filter-btn:hover {
-  background: #eef2f7;
-}
 
 .filter-btn.active {
   background: #10b981;
@@ -744,10 +715,6 @@ const getPetImage = (imageName) => {
   transition: transform 0.2s;
 }
 
-.pet-card-small:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 .pet-card-small img {
   width: 100%;
@@ -800,9 +767,6 @@ const getPetImage = (imageName) => {
 }
 
 .btn-edit:hover,
-.btn-delete:hover {
-  opacity: 0.8;
-}
 
 .requests-list {
   min-height: 200px;
@@ -839,9 +803,6 @@ const getPetImage = (imageName) => {
   transition: all 0.2s;
 }
 
-.application-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
 .app-pet-image {
   width: 60px;
@@ -911,9 +872,6 @@ const getPetImage = (imageName) => {
   transition: background 0.2s;
 }
 
-.view-btn:hover {
-  background: #6d28d9;
-}
 
 .modal-overlay {
   position: fixed;
@@ -936,7 +894,6 @@ const getPetImage = (imageName) => {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
@@ -954,26 +911,7 @@ const getPetImage = (imageName) => {
   color: #1f2937;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: #6b7280;
-  font-size: 1.75rem;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-}
 
-.close-btn:hover {
-  color: #1f2937;
-  background: #f3f4f6;
-}
 
 .modal-body {
   padding: 1.5rem;
@@ -1036,18 +974,12 @@ const getPetImage = (imageName) => {
   color: white;
 }
 
-.btn-success:hover {
-  background: #059669;
-}
 
 .btn-danger {
   background: #ef4444;
   color: white;
 }
 
-.btn-danger:hover {
-  background: #dc2626;
-}
 
 .edit-form {
   display: flex;
@@ -1090,7 +1022,6 @@ const getPetImage = (imageName) => {
 .form-input:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 textarea.form-input {
@@ -1114,10 +1045,6 @@ textarea.form-input {
   justify-content: center;
 }
 
-.upload-area:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-}
 
 .upload-placeholder {
   display: flex;
@@ -1126,7 +1053,6 @@ textarea.form-input {
   gap: 6px;
 }
 
-.upload-icon { font-size: 2rem; }
 
 .upload-text {
   font-size: 0.875rem;
@@ -1171,18 +1097,12 @@ textarea.form-input {
   color: white;
 }
 
-.btn-primary:hover {
-  background: #2563eb;
-}
 
 .btn-secondary {
   background: #6b7280;
   color: white;
 }
 
-.btn-secondary:hover {
-  background: #4b5563;
-}
 
 .modal-small {
   max-width: 400px;

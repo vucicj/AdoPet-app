@@ -238,21 +238,18 @@ onMounted(async () => {
     <div v-else class="admin-content">
       <div class="stats-grid">
         <div class="stat-card clickable-card" @click="handleAccountsClick">
-          <div class="stat-icon">👥</div>
           <div class="stat-info">
             <h3>Total Accounts</h3>
             <p class="stat-number">{{ stats.totalAccounts }}</p>
           </div>
         </div>
         <div class="stat-card clickable-card" @click="handlePetsClick">
-          <div class="stat-icon">🐾</div>
           <div class="stat-info">
             <h3>Total Pets</h3>
             <p class="stat-number">{{ stats.totalPets }}</p>
           </div>
         </div>
         <div class="stat-card clickable-card" @click="handleAdoptionsClick">
-          <div class="stat-icon">❤️</div>
           <div class="stat-info">
             <h3>Adoptions</h3>
             <p class="stat-number">{{ stats.totalAdoptions }}</p>
@@ -264,7 +261,6 @@ onMounted(async () => {
         <div v-if="viewingPets" class="admin-section">
           <div class="section-header">
             <h2>Total Pets</h2>
-            <button class="close-btn" @click="viewingPets = false">✕</button>
           </div>
           <div class="admin-table">
             <div v-if="petsLoading" class="loading-small">Loading pets...</div>
@@ -301,7 +297,6 @@ onMounted(async () => {
         <div v-if="viewingAdoptions" class="admin-section">
           <div class="section-header">
             <h2>Completed Adoptions</h2>
-            <button class="close-btn" @click="viewingAdoptions = false">✕</button>
           </div>
           <div class="admin-table">
             <div v-if="adoptionsLoading" class="loading-small">Loading adoptions...</div>
@@ -336,7 +331,6 @@ onMounted(async () => {
         <div v-if="viewingAccounts" class="admin-section">
           <div class="section-header">
             <h2>Total Accounts</h2>
-            <button class="close-btn" @click="viewingAccounts = false">✕</button>
           </div>
           <div class="admin-table">
             <div v-if="accountsLoading" class="loading-small">Loading accounts...</div>
@@ -378,7 +372,6 @@ onMounted(async () => {
   <!-- Create Shelter Modal -->
   <div v-if="showCreateShelterModal" class="modal-overlay" @click="showCreateShelterModal = false">
     <div class="modal-box shelter-modal" @click.stop>
-      <div class="modal-icon">🏠</div>
       <h2 class="modal-title">Create Shelter Account</h2>
       <div v-if="shelterFormError" class="shelter-error">{{ shelterFormError }}</div>
       <div class="shelter-form">
@@ -407,7 +400,6 @@ onMounted(async () => {
   <!-- Delete Confirmation Modal -->
   <div v-if="showDeleteModal" class="modal-overlay" @click="cancelDelete">
     <div class="modal-box" @click.stop>
-      <div class="modal-icon">🗑️</div>
       <h2 class="modal-title">Delete User</h2>
       <p class="modal-text">
         Are you sure you want to delete <strong>{{ userToDelete?.name }}</strong>?<br/>
@@ -423,7 +415,7 @@ onMounted(async () => {
 
 <style scoped>
 .hero-admin {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: #ef4444;
   padding: 60px 24px;
   text-align: center;
 }
@@ -466,35 +458,15 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
 .stat-card.clickable-card {
   cursor: pointer;
 }
 
-.stat-card.clickable-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  background: #fff8f8;
-}
 
-.stat-icon {
-  font-size: 36px;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  border-radius: 12px;
-}
 
 .stat-info h3 {
   margin: 0;
@@ -519,7 +491,6 @@ onMounted(async () => {
   background: #fff;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .admin-section h2 {
@@ -540,19 +511,6 @@ onMounted(async () => {
   margin: 0;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0;
-  line-height: 1;
-}
-
-.close-btn:hover {
-  color: #1f2937;
-}
 
 .admin-table {
   overflow-x: auto;
@@ -580,9 +538,6 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.admin-table tbody tr:hover {
-  background: #f9fafb;
-}
 
 .role-badge {
   display: inline-block;
@@ -672,9 +627,6 @@ onMounted(async () => {
   transition: background 0.2s;
 }
 
-.delete-btn:hover {
-  background: #dc2626;
-}
 
 .modal-overlay {
   position: fixed;
@@ -693,7 +645,6 @@ onMounted(async () => {
   width: 100%;
   max-width: 420px;
   text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   animation: popIn 0.2s ease;
 }
 
@@ -702,10 +653,6 @@ onMounted(async () => {
   to   { opacity: 1; transform: scale(1); }
 }
 
-.modal-icon {
-  font-size: 3rem;
-  margin-bottom: 0.75rem;
-}
 
 .modal-title {
   font-size: 1.4rem;
@@ -743,9 +690,6 @@ onMounted(async () => {
   transition: background 0.2s;
 }
 
-.btn-cancel:hover {
-  background: #f3f4f6;
-}
 
 .btn-confirm-delete {
   flex: 1;
@@ -760,9 +704,6 @@ onMounted(async () => {
   transition: background 0.2s;
 }
 
-.btn-confirm-delete:hover {
-  background: #dc2626;
-}
 
 .create-shelter-btn {
   margin-top: 20px;
@@ -775,14 +716,8 @@ onMounted(async () => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-.create-shelter-btn:hover {
-  background: #f9fafb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
 
 .shelter-modal {
   text-align: left;
@@ -819,7 +754,6 @@ onMounted(async () => {
 
 .shelter-input:focus {
   border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
 }
 
 .shelter-error {

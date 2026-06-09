@@ -111,11 +111,11 @@ onMounted(async () => {
 
         <div class="shelter-card" v-if="pet.shelter">
           <div class="shelter-title">{{ pet.shelter.name }}</div>
-          <div class="shelter-location">📍 {{ pet.location }}</div>
+          <div class="shelter-location">{{ pet.location }}</div>
         </div>
         <div class="shelter-card" v-else>
           <div class="shelter-title">Local Shelter</div>
-          <div class="shelter-location">📍 {{ pet.location }}</div>
+          <div class="shelter-location">{{ pet.location }}</div>
         </div>
 
         <button
@@ -165,11 +165,6 @@ onMounted(async () => {
   transition: all 0.2s;
 }
 
-.back-btn:hover {
-  color: #7c3aed;
-  border-color: #7c3aed;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
 
 .status-row {
   margin-top: 0.75rem;
@@ -202,7 +197,7 @@ onMounted(async () => {
 .adopt-btn {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: #7c3aed;
   color: white;
   border: none;
   border-radius: 12px;
@@ -210,13 +205,8 @@ onMounted(async () => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
-.adopt-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
-}
 
 .status-notice {
   padding: 1rem;
@@ -253,7 +243,6 @@ onMounted(async () => {
 .main-image {
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   line-height: 0;
   height: 420px;
 }
@@ -324,7 +313,6 @@ onMounted(async () => {
   background: white;
   padding: 1.25rem;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .section-card h3 {
@@ -364,7 +352,7 @@ onMounted(async () => {
 }
 
 .shelter-card {
-  background: linear-gradient(135deg, #c7b5f0, #d6c7f7);
+  background: #c7b5f0;
   padding: 1rem 1.25rem;
   border-radius: 16px;
   color: #4c1d95;

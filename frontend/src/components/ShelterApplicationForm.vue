@@ -79,7 +79,6 @@ const handleSubmit = async () => {
   <div class="shelter-application-page">
     <div class="form-card">
       <div class="form-header">
-        <span class="form-icon">🏠</span>
         <h1>I'm a Shelter</h1>
       </div>
 
@@ -159,7 +158,6 @@ const handleSubmit = async () => {
   background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
 .form-header {
@@ -169,13 +167,6 @@ const handleSubmit = async () => {
   margin-bottom: 0.5rem;
 }
 
-.form-icon {
-  font-size: 1.5rem;
-  background: #e8f7f1;
-  color: #10b981;
-  border-radius: 12px;
-  padding: 0.5rem 0.65rem;
-}
 
 .form-header h1 {
   margin: 0;
@@ -236,7 +227,6 @@ const handleSubmit = async () => {
   outline: none;
   border-color: #10b981;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 .row {
@@ -258,15 +248,10 @@ const handleSubmit = async () => {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.submit-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.25);
-}
 
 .submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-  box-shadow: none;
   transform: none;
 }
 

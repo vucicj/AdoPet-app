@@ -183,7 +183,6 @@ onMounted(async () => {
 
         <!-- Before You Apply -->
         <div class="info-section">
-          <div class="info-icon">ℹ️</div>
           <div class="info-content">
             <h3>Before you apply</h3>
             <p>Please be sure you have discussed this decision with all family members and only apply for this pet/breed if you are willing to wait and ready to commit. Our adoption will be willing to answer any question you may have about each of our adoptable dogs.</p>
@@ -340,7 +339,7 @@ onMounted(async () => {
 <style scoped>
 .application-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f0f4f8;
   padding: 2rem;
 }
 
@@ -353,7 +352,6 @@ onMounted(async () => {
   background: white;
   border-radius: 12px;
   padding: 2.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .header {
@@ -386,10 +384,6 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
-.close-btn:hover {
-  color: #1f2937;
-  background: #f3f4f6;
-}
 
 .subtitle {
   color: #6b7280;
@@ -424,11 +418,6 @@ onMounted(async () => {
   border: 1px solid #bfdbfe;
   border-radius: 8px;
   margin-bottom: 1.5rem;
-}
-
-.info-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
 }
 
 .info-content h3 {
@@ -528,7 +517,6 @@ onMounted(async () => {
 .input:focus {
   outline: none;
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .textarea {
@@ -545,7 +533,6 @@ onMounted(async () => {
 .textarea:focus {
   outline: none;
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .radio-group {
@@ -611,13 +598,12 @@ onMounted(async () => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: #7c3aed;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-primary:disabled {

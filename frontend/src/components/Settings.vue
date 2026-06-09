@@ -171,7 +171,7 @@ const savePassword = async () => {
 <style scoped>
 .settings-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f0f4f8;
 }
 
 .container {
@@ -185,7 +185,6 @@ const savePassword = async () => {
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .header {
@@ -213,10 +212,6 @@ const savePassword = async () => {
   border-radius: 4px;
 }
 
-.close-btn:hover {
-  color: #1f2937;
-  background: #f3f4f6;
-}
 
 .header h1 {
   font-size: 1.5rem;
@@ -281,7 +276,6 @@ const savePassword = async () => {
 .input:focus {
   outline: none;
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .form-actions {
@@ -302,13 +296,12 @@ const savePassword = async () => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: #7c3aed;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-primary:disabled {

@@ -44,7 +44,6 @@ const handleLogout = async () => {
   <header class="header">
     <div class="header-content">
       <div class="logo" @click="goToDashboard" style="cursor: pointer;">
-        <span class="paw-icon">🐾</span>
         <span class="brand-name">AdoPet</span>
       </div>
 
@@ -84,9 +83,6 @@ const handleLogout = async () => {
   color: #8b5cf6;
 }
 
-.paw-icon {
-  font-size: 28px;
-}
 
 .brand-name {
   color: #1f2937;
@@ -106,9 +102,6 @@ const handleLogout = async () => {
   transition: color 0.2s;
 }
 
-.user-name:hover {
-  color: #8b5cf6;
-}
 
 .logout-btn {
   padding: 6px 14px;
@@ -122,9 +115,6 @@ const handleLogout = async () => {
   transition: background 0.2s;
 }
 
-.logout-btn:hover {
-  background: #dc2626;
-}
 
 @media (max-width: 768px) {
   .user-section {
