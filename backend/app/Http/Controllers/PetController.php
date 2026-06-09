@@ -22,7 +22,7 @@ class PetController extends Controller
             if (!$path) {
                 return response()->json(['error' => 'Failed to store image'], 500);
             }
-            return response()->json(['url' => asset('storage/' . $path)]);
+            return response()->json(['url' => $request->getSchemeAndHttpHost() . '/storage/' . $path]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => 'Invalid image', 'messages' => $e->errors()], 422);
         } catch (\Exception $e) {
