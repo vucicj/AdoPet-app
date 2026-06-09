@@ -70,7 +70,6 @@ const handleRegister = async () => {
   <section class="auth-page">
     <div class="auth-card">
       <div class="brand-panel">
-        <div class="brand-mark">&#128062;</div>
         <h1 class="brand-title">AdoPet</h1>
         <p class="brand-subtitle">Where every paw finds a forever family</p>
         <div class="brand-illustration">
@@ -166,9 +165,6 @@ const handleRegister = async () => {
   text-align: center;
 }
 
-.brand-mark {
-  font-size: 42px;
-}
 
 .brand-title {
   margin: 0;
