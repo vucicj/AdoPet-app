@@ -763,7 +763,6 @@ const getPetImage = (imageName) => {
   color: #fff;
 }
 
-.btn-edit:hover,
 
 .requests-list {
   min-height: 200px;
