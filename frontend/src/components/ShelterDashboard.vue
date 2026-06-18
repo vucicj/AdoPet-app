@@ -37,6 +37,16 @@ const handleAdoptedClick = () => {
   viewingApplications.value = false
   viewingAdopted.value = true
 }
+
+const handleDogsClick = () => {
+  viewingPets.value = true
+  viewingApplications.value = false
+  viewingAdopted.value = false
+  petStatusFilter.value = ''
+  speciesFilter.value = 'dog'
+}
+
+const speciesFilter = ref('')
 const selectedPet = ref(null)
 const petToDelete = ref(null)
 
@@ -85,17 +95,24 @@ const handleEditImageSelect = async (event) => {
   }
 }
 
-const pendingApplications = computed(() => 
+const pendingApplications = computed(() =>
   applications.value.filter(app => app.status === 'pending')
+)
+
+const totalDogs = computed(() =>
+  props.pets.filter(pet => pet.species === 'dog')
 )
 
 
 const filteredPets = computed(() => {
-  if (!petStatusFilter.value) {
-    return props.pets
+  let result = props.pets
+  if (petStatusFilter.value) {
+    result = result.filter(pet => pet.status === petStatusFilter.value)
   }
-
-  return props.pets.filter(pet => pet.status === petStatusFilter.value)
+  if (speciesFilter.value) {
+    result = result.filter(pet => pet.species === speciesFilter.value)
+  }
+  return result
 })
 
 const activePets = computed(() =>
@@ -318,16 +335,22 @@ const getPetImage = (imageName) => {
             <p class="stat-number">{{ completedAdoptions }}</p>
           </div>
         </div>
+        <div class="stat-card clickable-card" @click="handleDogsClick">
+          <div class="stat-info">
+            <h3>Total Dogs</h3>
+            <p class="stat-number">{{ totalDogs.length }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- Your Pets -->
       <div v-if="viewingPets" class="shelter-section">
         <h2>Your Pets</h2>
         <div class="filter-row">
-          <button class="filter-btn" :class="{ active: petStatusFilter === 'available' }" @click="petStatusFilter = 'available'">Available</button>
-          <button class="filter-btn" :class="{ active: petStatusFilter === 'pending' }" @click="petStatusFilter = 'pending'">Pending</button>
-          <button class="filter-btn" :class="{ active: petStatusFilter === 'adopted' }" @click="petStatusFilter = 'adopted'">Adopted</button>
-          <button class="filter-btn" :class="{ active: petStatusFilter === '' }" @click="petStatusFilter = ''">All</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'available' }" @click="petStatusFilter = 'available'; speciesFilter = ''">Available</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'pending' }" @click="petStatusFilter = 'pending'; speciesFilter = ''">Pending</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === 'adopted' }" @click="petStatusFilter = 'adopted'; speciesFilter = ''">Adopted</button>
+          <button class="filter-btn" :class="{ active: petStatusFilter === '' }" @click="petStatusFilter = ''; speciesFilter = ''">All</button>
         </div>
         <div class="pets-grid-small">
           <div v-for="pet in filteredPets" :key="pet.id" class="pet-card-small">
